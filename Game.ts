@@ -60,10 +60,8 @@ export class Game {
   ctx = this.canvas.getContext("2d")!;
 
   constructor(canvas: HTMLCanvasElement | null = null, n: number = -1, m: number = -1) {
-    // this.canvas = canvas;
-    // this.ctx =  canvas.getContext("2d");
     if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-      //document.documentElement.classList.add('dark')
+      document.documentElement.classList.add('dark')
       this.color = "#dbdbdb";
     } else this.color = "black";
 
@@ -72,14 +70,7 @@ export class Game {
       console.log(`width: ${this.canvas.width} height: ${this.canvas.height}`)
     })
 
-    // this.canvas.addEventListener("mousedown" , (MouseEvent) => {
-    //   const {x, y} = MouseEvent;
-    //   let ij : number[] = this.moveClick2(x, y);
-    //   console.log(`i and j of the circle click: ${ij}`);
-    // })
-
-    this.canvas.addEventListener("click", (e) => {
-      
+    this.canvas.addEventListener("click", (e) => {      
       let ij : number[] = this.moveClick(e);
       console.log(`i and j of the circle click: ${ij}`)
     });
@@ -136,42 +127,6 @@ export class Game {
     return string;
   }
 
-  moveClick2(x : number, y : number) {
-    let i: number = -1;
-    let j: number = -1;
-    for (const circle of this.circles) {
-      if (this.isIntersect2(x , y, circle) === true) {
-        i = circle.i;
-        j = circle.j;
-        if (circle.i === 0 && circle.j === 0) {
-          this.turns++;
-          this.updateState(circle);
-          this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-          console.log("THE GAME HAS ENDED");
-          document.getElementById(
-            "reserved"
-          )!.textContent = `The game has ended in ${this.turns} turns, Player ${
-            this.turns % 2 == 0 ? 1 : 2
-          } won! `;
-          // document.getElementById("Holder2")!.innerHTML = `<button class="bt" type="button">Would you like to play again? If so, click here!</button>`
-          // document.getElementById("Holder2")!.addEventListener("click", () => {
-          //   location.reload();
-          // });
-          document
-            .getElementById("Holder2")!
-            .setAttribute("x-data", "{ open: true }");
-          break;
-        } else {
-          this.turns++;
-          this.updateState(circle);
-          this.resize2();
-          this.circles = this.fitShapes(this.canvas, this.globalGameState);
-          this.drawShapes(this.circles);
-        }
-      }
-    }
-    return [i, j];
-  }
 
   moveClick(e: MouseEvent) {
     console.log(`click click click`);
@@ -190,19 +145,7 @@ export class Game {
           this.updateState(circle);
           this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
           console.log("THE GAME HAS ENDED");
-          document.getElementById(
-            "reserved"
-          )!.textContent = `The game has ended in ${this.turns} turns, Player ${
-            this.turns % 2 == 0 ? 1 : 2
-          } won! `;
-          // document.getElementById("Holder2")!.innerHTML = `<button class="bt" type="button">Would you like to play again? If so, click here!</button>`
-          // document.getElementById("Holder2")!.addEventListener("click", () => {
-          //   location.reload();
-          // });
-          document
-            .getElementById("Holder2")!
-            .setAttribute("x-data", "{ open: true }");
-          break;
+          setTimeout(() => this.promptGameState.bind(this)() , 300);
         } else {
           this.turns++;
           this.updateState(circle);
@@ -211,7 +154,7 @@ export class Game {
         }
       }
     }
-    return [i, j];
+    return [j, i];
   }
 
   promptGameState() {
@@ -285,11 +228,13 @@ export class Game {
     return shapes;
   }
 
-  fitShapes(canvas: HTMLCanvasElement, state: string): Circle[] {
+  fitShapes2(canvas: HTMLCanvasElement, state: string): Circle[] {
     // declaring constants
     const kSpace = 0.05; // the empty space
-    const rows = parseInt(state[0]) + 1;
-    const columns = state.length;
+    // const rows = parseInt(state[0]) + 1;
+    // const columns = state.length;
+    const rows = this.n;
+    const columns = this.m;
 
     // declaring an array which will eventually include all the shapes
     let shapes = [];
@@ -321,6 +266,7 @@ export class Game {
       xE = gapX + 2 * r * columns + dx * (columns - 1);
     const yI = gapY + r,
       yE = gapY + 2 * r * rows + dy * (rows - 1);
+      // yE = canvas.height - gapY - r
     // const xI = canvas.width - gapX - r,
     //   xE = gapX + r;
     // const yI = canvas.height - gapY - r,
@@ -328,40 +274,120 @@ export class Game {
 
     // creating the shapes
     
-    let fix_lean =
+    let fix_leanX =
       canvas.width - xE + r < 0 ||
       Math.abs(canvas.width - xE + r) / 4 + xE > canvas.width
         ? 0
         : (canvas.width - xE) / 4;
+    let fix_leanY = 0;
+      // canvas.height - yE - r < 0 ||
+      // Math.abs(canvas.height - yE + r) / 4 + yE > canvas.height
+      //   ? 0
+      //   : (canvas.height - yE) / 4;
+      if (canvas.height - yE - gapY < 0) {
+        fix_leanY = canvas.height - yE - gapY;
+        console.log(`fixLeanY: ${fix_leanY}`)
+      }
+      else if (yI + 2*r*(rows) - r + gapY + (rows - 1) * dy > canvas.height) {
+        fix_leanY = canvas.height - yE - gapY;
+        console.log(`fixLeanY: ${fix_leanY}`)
+      }
+      else if (yE - yI >  canvas.height) {
+        fix_leanY = canvas.height - yE - gapY;
+        console.log(`fixLeanY: ${fix_leanY}`)
+      }
+      else if (yE - 2 * r * rows - dy * (rows - 1) + r + gapY > yI) {
+        console.log(`yI too far up`)
+        fix_leanY = yE - 2 * r * rows - dy * (rows - 1) + r + gapY - yI;
+        console.log(`fixLeanY: ${fix_leanY}`)
+      }
+      else if (yE + gapY + dy > canvas.height) {
+        console.log(`yE too down`)
+        fix_leanY = canvas.height - yE - gapY;
+        console.log(`fixLeanY: ${fix_leanY}`)
+      }
+      console.log(`gapY is: ${gapY}`)
+      console.log(`yE is: ${yE}`)
     for(let j = 0; j < columns; j++) {
       const jRows = parseInt(this.globalGameState[j]);
       const yGo = canvas.height - jRows * (gapY + 2*r) - dy * (jRows - 1) - r;
-      for(let i = 0; i <= parseInt(this.globalGameState[j]); i++) {
-        const x = Math.round(xI + j * 2 * r + dx + fix_lean);
-        const y = Math.round(yGo +  (i) * 2 * r + dy);
-        let shape = new Circle(x, y, r, rows - i - 1, j, this.inGame(i, j));
+      for(let i = jRows; i >= 0; i--) {
+        const x = Math.round(xI + j * 2 * r + dx + fix_leanX);
+        const y = Math.round(yI +  (rows - i) * 2 * r +  dy * (rows - i - 2) - fix_leanY );
+        let shape = new Circle(x, y, r, i, j, this.inGame(i, j));
         shapes.push(shape);
       }
     }
 
-
-    // for (let j = 0; j < columns; j++) {
-    //   for (let i = 0; i <= parseInt(this.globalGameState[j]); i++) {
-    //     let count_dx = j * dx > 0 ? j * dx : 0;
-    //     let count_dy = i * dy > 0 ? i * dy : 0;
-    //     let fix_lean =
-    //       canvas.width - xE + r < 0 ||
-    //       Math.abs(canvas.width - xE + r) / 4 + xE > canvas.width
-    //         ? 0
-    //         : (canvas.width - xE) / 4;
-    //     const x = Math.round(xI + j * 2 * r + count_dx + fix_lean);
-    //     const y = Math.round(yE - i * 2 - r - count_dy);
-    //     let shape = new Circle(x, y, r, i, j, this.inGame(i, j));
-    //     shapes.push(shape);
-    //   }
-    // }
-
     return shapes;
+  }
+
+  fitShapes(canvas: HTMLCanvasElement, state: string): Circle[] {
+    // declaring constants
+    const kGap = 0.05; // the empty space from the borders
+    const kD = 0.1; // the empty space between the circles
+    // const rows = parseInt(state[0]) + 1;
+    // const columns = state.length;
+    const rows = this.n;
+    const columns = this.m;
+    // the gapped borders
+    const xGappedI = canvas.width * (kGap / 2), xGappedE = canvas.width * (1 - kGap / 2); 
+    const yGappedI = canvas.height * (kGap / 4), yGappedE = canvas.height * (1 - kGap / 2);
+  
+    // calculating maximum bound radius
+    // in the gapped border, leaving a kD% of space inside for gaps
+    // between the circles
+    const r = Math.floor(
+      canvas.width > canvas.height
+        ? ((yGappedE - yGappedI) * (1-kD)) /
+            (rows > columns ? rows : columns) /
+            2
+        : ((xGappedE - xGappedI) * (1-kD)) /
+            (rows > columns ? rows : columns) /
+            2
+    );
+
+    // calculating the gap between the space the shapes take and space the canvas has
+    const dx = Math.floor((xGappedE - xGappedI) * (kD) / (columns - 1));
+    const dy = Math.floor((yGappedE - yGappedI) * (kD) / (rows - 1));
+
+    // calculating xI - the first x position we can have a shape at
+    // and xE where the tip of the final circle will reach
+    // same thing for y
+    const xI = xGappedI + r,
+      xE = xGappedI + 2 * r * columns + dx * (columns - 1);
+    const yI = yGappedI + r,
+      yE = yGappedI + 2 * r * rows + dy * (rows - 1);
+
+      let fix_leanX =
+      canvas.width - xE + r < 0 ||
+      Math.abs(canvas.width - xE + r) / 4 + xE > canvas.width
+        ? 0
+        : (canvas.width - xE) / 4;
+      let fix_leanY = 0;
+      if (yE >= yGappedE) {
+        fix_leanY = yE - yGappedE
+        console.log(`yE is too far up, fix: ${fix_leanY}`);
+      }
+      console.log(`yE: ${yE}, yGappedE: ${yGappedE}`)
+      let shapes = [];
+      for(let j = 0; j < columns; j++) {
+        const jRows = parseInt(this.globalGameState[j]);
+        const yGo = yE - r;
+        // const yGo = yI + 2*r*rows -  r + dy * (rows-1);
+        console.log(`yGo: ${yGo} and gappedY is: ${yGappedE}`)
+        // fix_leanY = (yGo - yGappedE) * (yGo > yGappedE? 1:0);
+        fix_leanY = (yI + rows * 2 * r + dy * (rows - 1) - yGo) * (yI + rows * 2 * r + dy * (rows - 1) > yGappedE? 1:0);
+        for(let i = jRows; i >= 0; i--) {
+          const x = Math.round(xI + j * 2 * r + dx + fix_leanX);
+          const y = Math.round(yI +  (rows - i) * 2 * r +  dy * (rows - i - 1) - fix_leanY);
+          console.log(`y + r: ${y + r} and gappedY is: ${yGappedE}, i is: ${i}`)
+          let shape = new Circle(x, y, r, i, j, this.inGame(i, j));
+          shapes.push(shape);
+        }
+      }
+  
+      return shapes;
   }
 
   updateState(c: Circle) {
@@ -422,13 +448,6 @@ export class Game {
   isIntersect(point: point, circle: Circle) {
     const distance = Math.sqrt(
       Math.pow(point.x - circle.x, 2) + Math.pow(point.y - circle.y, 2)
-    );
-    return distance < circle.r;
-  }
-
-  isIntersect2(x : number, y : number, circle: Circle) {
-    const distance = Math.sqrt(
-      Math.pow(x - circle.x, 2) + Math.pow(y - circle.y, 2)
     );
     return distance < circle.r;
   }

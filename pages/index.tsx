@@ -1,60 +1,84 @@
+import Link from 'next/link'
+import Head from 'next/head'
+import { useEffect } from 'react'
 import styles from '../styles/Home.module.css'
 import Image from 'next/image'
-import Head from 'next/head'
-import Link from 'next/link'
-import React, { ReactNode, useEffect, useState, useRef, Ref } from 'react'
 import 'tailwindcss/tailwind.css'
-import dynamic from "next/dynamic";
-
-const Canvas = dynamic(() => import("../components/gameComponent"), {
-  ssr: false,
-});
-
-
-type divProps = {
-    children?: ReactNode
-    id?: string
-    class?: string
+function HomePage() {
+    useEffect( () => {
+        document.getElementById('__next')!.classList.add('MegaCenter');
+        // document.getElementsByTagName("BODY")[0].classList.add('flex ml-5');
+        document.body.classList.add("grid");
+    })
+    const style1 = {
+        
+    }
+    return (<>
+    <Head>
+        <title>NextChomp</title>
+		<meta charSet="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"
+        integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk="
+        crossOrigin="anonymous"
+		/>
+        <link rel="stylesheet" href="/css/index2.css"/>    
+    </Head>
+    <div className="join-container">
+    <div className="join-container" style={style1}>
+			<header className="join-header">
+				<h1 className="title"><i className="fas fa-smile"></i> Chomp Online</h1>
+			</header>
+			<main className="join-main">
+				<form id="form" className="form" action="/loader">                    
+                    <input id="a" type="radio" name="hopping" value="a" checked />
+                    <label htmlFor="a"><span></span>One Device</label>
+                    <input id="b" type="radio" name="hopping" value="b" />
+                    <label htmlFor="b"><span></span>Online Multiplayer</label>
+                    <input id="c" type="radio" name="hopping" value="c" />
+                    <label htmlFor="c"><span></span>Play against a bot</label>
+                    <div className="worm">
+                        <div className="worm__segment"></div>
+                        <div className="worm__segment"></div>
+                        <div className="worm__segment"></div>
+                        <div className="worm__segment"></div>
+                        <div className="worm__segment"></div>
+                        <div className="worm__segment"></div>
+                        <div className="worm__segment"></div>
+                        <div className="worm__segment"></div>
+                        <div className="worm__segment"></div>
+                        <div className="worm__segment"></div>
+                        <div className="worm__segment"></div>
+                        <div className="worm__segment"></div>
+                        <div className="worm__segment"></div>
+                        <div className="worm__segment"></div>
+                        <div className="worm__segment"></div>
+                        <div className="worm__segment"></div>
+                        <div className="worm__segment"></div>
+                        <div className="worm__segment"></div>
+                        <div className="worm__segment"></div>
+                        <div className="worm__segment"></div>
+                        <div className="worm__segment"></div>
+                        <div className="worm__segment"></div>
+                        <div className="worm__segment"></div>
+                        <div className="worm__segment"></div>
+                        <div className="worm__segment"></div>
+                        <div className="worm__segment"></div>
+                        <div className="worm__segment"></div>
+                        <div className="worm__segment"></div>
+                        <div className="worm__segment"></div>
+                        <div className="worm__segment"></div>
+                    </div>
+                    
+                    <button type="submit" className="btn">Start a game!</button>
+                </form>
+			</main>
+		</div>
+    </div>
+        </>)
 }
 
-type soundProps = {
-    controls?: boolean
-    src?: string
-}
-
-function WrapDiv(props: divProps) {
-    return <div id={props.id} className={props.class}>{props.children}</div>
-}
-
-function SoundItem({ src, controls = false }: soundProps) {
-    if (controls) return <audio controls>
-        <source src={src} type="audio/ogg" />
-    </audio>
-    return <audio src={src}></audio>
-}
-
-export default function Home() {
-    const soundBar = <SoundItem controls src="" />
-    const soundWrap = <WrapDiv id="soundControl" children={soundBar} />;
-    const canvas = <Canvas class="w-4/5 h-4/5" id="canvas" />;
-    const main = <WrapDiv class="w-screen h-screen" id="flexWrap" children={canvas} />;
-    return <>
-        <Head>
-            <title>NextChomp</title>
-            <meta charSet="UTF-8" />
-            <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-            <meta httpEquiv="X-UA-Compatible" content="ie=edge" />
-            <link
-                rel="stylesheet"
-                href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"
-                integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk="
-                crossOrigin="anonymous"
-            />
-            <link rel="stylesheet" href="/index2.css" />
-            <link rel="icon" href="favicon.ico" />
-        </Head>
-        <h1>Welcome to the NextChomp Bot Page!</h1>
-        {soundWrap}
-        {main}
-    </>
-}
+export default HomePage
