@@ -33,14 +33,14 @@ function SoundItem({ src, controls = false }: soundProps) {
     return <audio src={src}></audio>
 }
 
-export default function Home() {
+export default function Solo() {
     const soundBar = <SoundItem controls src="" />
     const soundWrap = <WrapDiv id="soundControl" children={soundBar} />;
     const canvas = <Canvas class="w-4/5 h-4/5" id="canvas" />;
     const main = <WrapDiv class="w-screen h-screen" id="flexWrap" children={canvas} />;
     return <>
         <Head>
-            <title>NextChomp</title>
+            <title>SoloChomp</title>
             <meta charSet="UTF-8" />
             <meta name="viewport" content="width=device-width, initial-scale=1.0" />
             <meta httpEquiv="X-UA-Compatible" content="ie=edge" />

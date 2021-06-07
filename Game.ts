@@ -67,14 +67,15 @@ export class Game {
 
     window.addEventListener("resize", () => {
       this.resize2.bind(this)();
-      console.log(`width: ${this.canvas.width} height: ${this.canvas.height}`)
+      // console.log(`width: ${this.canvas.width} height: ${this.canvas.height}`)
     })
 
+    
     this.canvas.addEventListener("click", (e) => {      
       let ij : number[] = this.moveClick(e);
-      console.log(`i and j of the circle click: ${ij}`)
+      // console.log(`i and j of the circle click: ${ij}`)
     });
-
+    
     if (n === -1 || m === -1) this.promptGameState();
     else {
       this.n = n;
@@ -83,6 +84,7 @@ export class Game {
       this.circles = this.fitShapes(this.canvas, this.globalGameState);
       this.drawShapes(this.circles);
     }
+    this.resize2();
   }
 
 
@@ -101,10 +103,7 @@ export class Game {
 
       this.circles = this.fitShapes(this.canvas, this.globalGameState);
       this.drawShapes(this.circles);
-      return true;
     }
-
-    return false;
   };
 
   resizeFunc() {
@@ -114,7 +113,7 @@ export class Game {
     // this.canvas.width -= this.canvas.width % 2;
     this.ctx.scale(3,3);
     this.canvas.width = parseInt(this.canvas.style.width) * 2
-    console.log(`canvas width: ${this.canvas.width} and height: ${this.canvas.height}`)
+    // console.log(`canvas width: ${this.canvas.width} and height: ${this.canvas.height}`)
     this.createShapesByState(this.canvas, this.globalGameState);
     this.drawShapes(this.circles);
   }
@@ -129,10 +128,6 @@ export class Game {
 
 
   moveClick(e: MouseEvent) {
-    console.log(`click click click`);
-    console.log(`gameString is: ${this.globalGameState}`);
-    console.log(`circles is: ${this.circles}`);
-
     const CANVASpos = this.getMousePos(e);
     let i: number = -1;
     let j: number = -1;
@@ -170,7 +165,7 @@ export class Game {
     this.n = n;
     this.m = m;
     this.globalGameState = this.createGameString(n, m);
-    console.log(`globalGameState is: ${this.globalGameState}`);
+    // console.log(`globalGameState is: ${this.globalGameState}`);
     this.resize2();
     this.circles = this.fitShapes(this.canvas, this.globalGameState);
     this.drawShapes(this.circles);
@@ -180,7 +175,7 @@ export class Game {
     // declaring constants
     const width = canvas.width;
     const height = canvas.height;
-    console.log(`in createShapes, width: ${width}, height: ${height}`)
+    // console.log(`in createShapes, width: ${width}, height: ${height}`)
     const rows = parseInt(state[0]) + 1;
     const columns = state.length;
 
@@ -367,21 +362,21 @@ export class Game {
       let fix_leanY = 0;
       if (yE >= yGappedE) {
         fix_leanY = yE - yGappedE
-        console.log(`yE is too far up, fix: ${fix_leanY}`);
+        // console.log(`yE is too far up, fix: ${fix_leanY}`);
       }
-      console.log(`yE: ${yE}, yGappedE: ${yGappedE}`)
+      // console.log(`yE: ${yE}, yGappedE: ${yGappedE}`)
       let shapes = [];
       for(let j = 0; j < columns; j++) {
         const jRows = parseInt(this.globalGameState[j]);
         const yGo = yE - r;
         // const yGo = yI + 2*r*rows -  r + dy * (rows-1);
-        console.log(`yGo: ${yGo} and gappedY is: ${yGappedE}`)
+        // console.log(`yGo: ${yGo} and gappedY is: ${yGappedE}`)
         // fix_leanY = (yGo - yGappedE) * (yGo > yGappedE? 1:0);
         fix_leanY = (yI + rows * 2 * r + dy * (rows - 1) - yGo) * (yI + rows * 2 * r + dy * (rows - 1) > yGappedE? 1:0);
         for(let i = jRows; i >= 0; i--) {
           const x = Math.round(xI + j * 2 * r + dx + fix_leanX);
           const y = Math.round(yI +  (rows - i) * 2 * r +  dy * (rows - i - 1) - fix_leanY);
-          console.log(`y + r: ${y + r} and gappedY is: ${yGappedE}, i is: ${i}`)
+          // console.log(`y + r: ${y + r} and gappedY is: ${yGappedE}, i is: ${i}`)
           let shape = new Circle(x, y, r, i, j, this.inGame(i, j));
           shapes.push(shape);
         }
@@ -392,8 +387,8 @@ export class Game {
 
   updateState(c: Circle) {
     let newState = this.computeState(this.globalGameState, c.i, c.j);
-    console.log(`state was ${this.globalGameState} and is now ${newState}`);
-    console.log(`circle is ${c}`);
+    // console.log(`state was ${this.globalGameState} and is now ${newState}`);
+    // console.log(`circle is ${c}`);
     this.globalGameState = newState;
   }
 

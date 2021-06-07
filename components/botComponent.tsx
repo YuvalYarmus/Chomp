@@ -1,12 +1,11 @@
 import React, { ReactNode, useEffect, useState , useRef, Ref, MutableRefObject } from 'react'
 import { Game } from '../Game'
+import { Bot } from "../bot"
 
 interface Props {
   // Props
   id?: string
   class?: string
-  n? : number, 
-  m? : number
 }
 
 const Component: React.FC<Props> = (props) => {
@@ -14,17 +13,12 @@ const Component: React.FC<Props> = (props) => {
   const canvasRef2 = useRef(null);
   useEffect(() => {
     // Run after mount
-    let game : Game;
-    if (props.n && props.m) game = new Game(canvasRef2.current, props.n, props.m);
-    else new Game(canvasRef2.current);
-    
-    // const game = new Game(canvasRef);
+    const bot = new Bot(canvasRef2.current)
     return () => {
-      window.removeEventListener(`resize`, game.resizeFunc);
+      window.removeEventListener(`resize`, bot.resizeFunc);
     }
   }, []);
   return <canvas ref={canvasRef2} id={props.id} className={props.class}></canvas>
-  // return <canvas ref={(canvas) => canvasRef = canvas} id={props.id} className={props.class}></canvas>
 }
 
 export default Component;

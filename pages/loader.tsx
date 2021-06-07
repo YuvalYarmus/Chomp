@@ -2,7 +2,10 @@ import Link from 'next/link'
 import Head from 'next/head'
 import { useEffect } from 'react'
 import 'tailwindcss/tailwind.css'
-
+import init from '../firebase/initFirebase'
+import { writeToFireStore, Room, User, createGameString } from '../firebase/loadWrite'
+const { v4: uuidV4, validate: uuidValidate } = require("uuid");
+import { useRouter } from 'next/router'
 
 function getURLParam(paramName: string) {
     let params = new URLSearchParams(window.location.search);
@@ -11,6 +14,7 @@ function getURLParam(paramName: string) {
 }
 
 function Load() {
+    const router = useRouter();
     useEffect(() => {
         let hopping: string = getURLParam("hopping")!;
         if (hopping === "c") setTimeout(() => {
@@ -20,21 +24,49 @@ function Load() {
             window.location.replace("/solo");
         }, 500);
         else {
-            let page="/multiplayer"
+            init();
             let style = `style="color:grey; padding-top:10px;"`;
             let text: string = `
-        <main class="join-main">
-        <form id="form" class="form" action="${page}">
+            <main class="join-main">
+            <form id="form" class="form">
             <input id="full_name" placeholder="Plese enter your name" name="full_name" required>
             <label for="n" ${style}>The amount of columns:</label>
             <input type="number" id="n" value="6" name="n" min="2" max="8">
             <label for="m" ${style}>The amount of rows:</label>
             <input type="number" id="m" value="7" name="m" min="2" max="8">
             <button type="submit" class="btn">Start the game!</button>
-        </form></main>
-        `;
-            var node = document.getElementById("container2")!;
+            </form></main>
+            `;
+            const node = document.getElementById("container2")!;
             node.innerHTML = text;
+            const form = document.getElementById("form")!.addEventListener("submit", async (e) => {
+                e.preventDefault();
+                const n = parseInt((document.getElementById("n")! as HTMLInputElement).value);
+                const m = parseInt((document.getElementById("m")! as HTMLInputElement).value);
+                const name = (document.getElementById("full_name")! as HTMLInputElement).value;
+                const uuid = uuidV4();
+                const user: User = {
+                    id: `${uuid}-${name}`,
+                    name: name,
+                    room: uuid
+                }
+                const room: Room = {
+                    population: 1,
+                    uuid: uuid,
+                    currTurn: 0,
+                    n: n,
+                    m: m,
+                    users: [user],
+                }
+                await writeToFireStore(room, user);
+                // alert(`after write to firestore`);
+                console.log(`after write to firestore`);
+                router.push({
+                    pathname: `/room/${uuid}`,
+                    query: { name: name, userId: `${uuid}-${name}`   },
+                });
+                // router.push(`?name=${name}&&userId=${uuid}-${name}`);
+            });
         }
     })
     return (<><Head>

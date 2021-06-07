@@ -34,7 +34,7 @@ function HomePage() {
 			</header>
 			<main className="join-main">
 				<form id="form" className="form" action="/loader">                    
-                    <input id="a" type="radio" name="hopping" value="a" checked />
+                    <input id="a" type="radio" name="hopping" value="a" defaultChecked />
                     <label htmlFor="a"><span></span>One Device</label>
                     <input id="b" type="radio" name="hopping" value="b" />
                     <label htmlFor="b"><span></span>Online Multiplayer</label>
