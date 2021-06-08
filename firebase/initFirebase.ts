@@ -15,6 +15,7 @@ const firebaseConfig = {
 
 
 export default function initFirebase() {
+    console.log(`in firebase init function`)
     if (!firebase.apps.length) {
         firebase.initializeApp(firebaseConfig)
         console.log('Firebase was successfully init.')

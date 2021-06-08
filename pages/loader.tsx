@@ -44,26 +44,29 @@ function Load() {
                 const n = parseInt((document.getElementById("n")! as HTMLInputElement).value);
                 const m = parseInt((document.getElementById("m")! as HTMLInputElement).value);
                 const name = (document.getElementById("full_name")! as HTMLInputElement).value;
-                const uuid = uuidV4();
+                const roomUuid = uuidV4(), userUuid = uuidV4();
+                console.log(`--------submit triggered---------`)
                 const user: User = {
-                    id: `${uuid}-${name}`,
+                    // id: `${uuid}-${name}`,
+                    id: userUuid,
                     name: name,
-                    room: uuid
+                    room: roomUuid
                 }
                 const room: Room = {
                     population: 1,
-                    uuid: uuid,
+                    uuid: roomUuid,
                     currTurn: 0,
                     n: n,
                     m: m,
                     users: [user],
                 }
+                console.log(`room: ${JSON.stringify(room)}, user: ${JSON.stringify(user)}`)
                 await writeToFireStore(room, user);
                 // alert(`after write to firestore`);
                 console.log(`after write to firestore`);
                 router.push({
-                    pathname: `/room/${uuid}`,
-                    query: { name: name, userId: `${uuid}-${name}`   },
+                    pathname: `/room/${roomUuid}`,
+                    query: { name: name, userId: userUuid   },
                 });
                 // router.push(`?name=${name}&&userId=${uuid}-${name}`);
             });
