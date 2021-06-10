@@ -51,31 +51,11 @@ function SoundItem({ src, controls = false }: soundProps) {
     return <audio src={src}></audio>
 }
 
-// const sign = async () => {
-//     const name = prompt(`choose a name: `) || "John Dough"
-//     const uuid = router.query.uuid as string
-//     const user: User = {
-//         id: `${uuid}-${name}`,
-//         name: name,
-//         room: uuid
-//     }
-//     await init();
-//     await addUser(user);
-//     router.push({
-//         pathname: window.location.href.split('?')[0],
-//         query: {
-//             name: name,
-//             userId: `${uuid}-${name}`,
-//             invite: true
-//         }
-//     });
-// }
-
 export default function uuid({ bool, room, user, errors }: Props) {
     const router = useRouter();
+    const [authUser, loading, error] = useAuthState(firebase.auth());
     console.log(`hello there! I am in page!`)
     console.log(`bool is: ${bool}, room: ${room}, user: ${user}, errors: ${errors}`);
-    const [authUser, loading, error] = useAuthState(firebase.auth());
     if (!bool) {
         const addUserr = async () => {
             console.log(`trying to create another user in first bool if`)
@@ -86,7 +66,7 @@ export default function uuid({ bool, room, user, errors }: Props) {
                 name: name,
                 room: router.query.uuid as string
             }
-            await addUser(newUser);
+            if (authUser != null) await addUser(newUser);
             console.log(`after creating another user`)
             const url = `/room/${router.query.uuid as string}?name=${name}&userId=${userUuid}`;
             console.log(`move to url: ${url}`);
@@ -106,17 +86,17 @@ export default function uuid({ bool, room, user, errors }: Props) {
         console.log(`${router.asPath}`)
         console.log(`auth user: ${JSON.stringify(authUser)}, loading: ${JSON.stringify(loading)}`)
         useEffect( () => {
-            console.log(`from use effect`)
-            if (authUser != null) async () => {
+            console.log(`from use effect with: ${authUser} or ${JSON.stringify(authUser)}`)
+            if (authUser != null) (async () => {
                 console.log(`in authUser if in useEffect`)
                 await addUserr();
-                return
-            }
-            console.log(`after the the authUser if statemnt from the useEffect: ${JSON.stringify(authUser)}`);
-            (async () => {
-                await addUserr();
-            })();
-            return
+                // return
+            })()
+            // console.log(`after the the authUser if statemnt from the useEffect: ${JSON.stringify(authUser)}`);
+            // (async () => {
+            //     await addUserr();
+            // })();
+            // return
         });
         return <>
             {loading && <h4>Loading...</h4>}
@@ -226,14 +206,14 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }: 
             return { props: { bool: false } }
         }
         // use onsnapshot only on the client side as it opens a socket
-        const room = await firebase.firestore().collection(`rooms`).doc(`${id}`).get().then((doc) => {
+        const room : any = await firebase.firestore().collection(`rooms`).doc(`${id}`).get().then((doc) => {
             if (doc.exists) return doc.data();
             console.log(`there is no such room document: ${doc}-${doc.data()}`)
             return doc;
         }).catch((error) => {
             console.log(`error in fetching a room: ${error}`)
         });
-        const user = await firebase.firestore().collection(`users`).doc(`${userId}`).get().then((doc) => {
+        const user : any = await firebase.firestore().collection(`users`).doc(`${userId}`).get().then((doc) => {
             if (doc.exists) return doc.data();
             console.log(`there is no such user document: ${doc}-${doc.data()}`)
             return doc;
@@ -246,8 +226,18 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }: 
         // will receive `item` as a prop at build time
         // return { props: { item } }
 
-        console.log(`id: ${id}, userId: ${userId}`);
-        console.log(`room var is: ${room}, user: ${user}`);
+        
+        console.log(`room var is: ${JSON.stringify(room)}, user: ${user}`);
+        room.users.forEach( (user : User) => {
+            // user.created = firebase.firestore.Timestamp.toDate()
+            user.created = user.created.toDate();
+            // console.log(`now user.created is: ${user.created} of type: ${typeof user.created}`);
+            user.created = JSON.stringify(user.created);
+            // console.log(`now user.created is: ${user.created} of type: ${typeof user.created}`);
+        })
+        user.created = JSON.stringify(user.created.toDate());
+        // console.log(`id: ${id}, userId: ${userId}`);
+        // console.log(`room var is: ${JSON.stringify(room)}, user: ${user}`);
         return {
             props: {
                 bool: true,

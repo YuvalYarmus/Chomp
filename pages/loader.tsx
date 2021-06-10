@@ -60,10 +60,10 @@ function Load() {
                     m: m,
                     users: [user],
                 }
-                console.log(`room: ${JSON.stringify(room)}, user: ${JSON.stringify(user)}`)
+                console.log(`from loader: room: ${JSON.stringify(room)}, user: ${JSON.stringify(user)}`)
                 await writeToFireStore(room, user);
                 // alert(`after write to firestore`);
-                console.log(`after write to firestore`);
+                console.log(`from loader: after write to firestore`);
                 router.push({
                     pathname: `/room/${roomUuid}`,
                     query: { name: name, userId: userUuid   },
