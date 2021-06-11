@@ -11,18 +11,21 @@ export type User = {
   created? : any;
 };
 
-export default async function addUserToFireStore(user : User) {
+export default async function addUserToUsers(user : User) {
     try {
         user['created'] = firebase.firestore.Timestamp.now();
-        await firebase.firestore().collection("users").doc(`${user.id}`).set(
-          {
-            id: user.id,
-            name: user.name,
-            room: user.room,
-            created: firebase.firestore.Timestamp.now() 
-          },
-          { merge: true }
-        );
+        console.log(`user is now in addUserToUsers as : ${JSON.stringify(user)}`);
+        setTimeout(async () => {
+            await firebase.firestore().collection("users").doc(`${user.id}`).set(
+              {
+                id: user.id,
+                name: user.name,
+                room: user.room,
+                created: firebase.firestore.Timestamp.now() 
+              },
+              { merge: true }
+            );
+        });
         return new Promise<void>((resolve) => {
             console.log(`added a user to users (from resolve)`);
             resolve();

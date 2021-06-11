@@ -1,20 +1,30 @@
 import { Game, Circle } from "./Game";
+import addRoomMove from "./firebase/addRoomMove"
+import getRoomUsers from "./firebase/getRoomUsers"
+import getRoomMoves from "./firebase/getRoomMoves";
+import init from "./firebase/initFirebase"
 
 export class MultGame extends Game {
     
     myTurn : number = 0;
     canPlay : boolean = false;
+    room: string;
+    userId: string;
 
     constructor(
     canvas: HTMLCanvasElement | null = null,
     n: number = -1,
     m: number = -1, 
+    room : string,
+    userId : string,
     myTurn = 0,
-    canPlay = false
+    canPlay = false, 
   ) {
     super();
     this.myTurn = myTurn;
     this.canPlay = canPlay;
+    this.room = room;
+    this.userId = userId;
   }
 
   /**
@@ -47,6 +57,17 @@ export class MultGame extends Game {
       }
     }
     return [j, i];
+  }
+
+  async isFirst2() {
+    init();
+    const roomUsers = await getRoomUsers(this.room);
+    if (roomUsers === null) return false;
+    if (roomUsers!.length < 2) return false;
+    for(let i = 0; i < 2 && i < roomUsers!.length; i++) {
+      if (roomUsers![i].id === this.userId) return true;
+    }
+    return false;
   }
 
 

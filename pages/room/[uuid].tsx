@@ -17,7 +17,12 @@ import { useAuthState } from "react-firebase-hooks/auth"
 import { useCollection } from "react-firebase-hooks/firestore"
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth"
 import Auth from "../../components/authComponent"
-import SignIn from "../../components/signIn"
+import addUserToUsers from "../../firebase/addUser"
+import addRoomUser from "../../firebase/addRoomUser"
+import removeRoomUser from "../../firebase/RemoveRoomUser"
+import RemoveUser from "../../firebase/RemoveUser"
+import removeUser from '../../firebase/RemoveUser'
+
 const { v4: uuidV4, validate: uuidValidate } = require("uuid");
 
 const Canvas = dynamic(() => import("../../components/gameComponent"), {
@@ -57,46 +62,45 @@ export default function uuid({ bool, room, user, errors }: Props) {
     console.log(`hello there! I am in page!`)
     console.log(`bool is: ${bool}, room: ${room}, user: ${user}, errors: ${errors}`);
     if (!bool) {
-        const addUserr = async () => {
-            console.log(`trying to create another user in first bool if`)
-            const name = authUser?.displayName as string
-            const userUuid = uuidV4();
-            const newUser: User = {
-                id: userUuid,
-                name: name,
-                room: router.query.uuid as string
-            }
-            if (authUser != null) await addUser(newUser);
-            console.log(`after creating another user`)
-            const url = `/room/${router.query.uuid as string}?name=${name}&userId=${userUuid}`;
-            console.log(`move to url: ${url}`);
-            router.push(url);
-            // router.push({
-            //     href: `/room/${router.query.uuid as string}`,
-            //     query: {
-            //         name: name,
-            //         userId: userUuid
-            //     }
-            // })
-            // return new Promise<void>(resolve =>resolve());
-        }
-        // if (authUser) addUserr();
-        http://localhost:3000/room/57b26427-1070-45cf-bc1a-28dae53dc297
+
         console.log(`in bool statement`)
         console.log(`${router.asPath}`)
         console.log(`auth user: ${JSON.stringify(authUser)}, loading: ${JSON.stringify(loading)}`)
-        useEffect( () => {
-            console.log(`from use effect with: ${authUser} or ${JSON.stringify(authUser)}`)
+        useEffect(() => {
+            console.log(`from use effect with: ${authUser}`)
             if (authUser != null) (async () => {
-                console.log(`in authUser if in useEffect`)
-                await addUserr();
-                // return
+                const name = authUser?.displayName as string
+                const userUuid = uuidV4();
+                const newUser: User = {
+                    id: userUuid,
+                    name: name,
+                    room: router.query.uuid as string
+                }
+                console.log(`before addUserToUsers from useEffect`)
+                const answer = await addRoomUser(newUser);
+                if (answer === true) {
+                    await addUserToUsers(newUser);
+                    const url = `/room/${router.query.uuid as string}?name=${name}&userId=${userUuid}`;
+                    console.log(`move to url: ${url}`);
+                    router.push(url);
+                }
+                else {
+                    console.log(`found a user with that name already: ${name}`);
+                    alert(`a user with that name probably already exists`);
+                    const named = name.trim().replace(/\s/g, '')
+                    const url = `/room/${router.query.uuid as string}?name=${named}&userId=${answer}`;
+                    console.log(`move to url: ${url}`);
+                    router.push(url);
+                }
+                return () => {
+                    (async () => {
+                        alert(`please don't leave :(`);
+                        await removeRoomUser(newUser);
+                        await removeUser(newUser);
+                    })();
+                }
             })()
-            // console.log(`after the the authUser if statemnt from the useEffect: ${JSON.stringify(authUser)}`);
-            // (async () => {
-            //     await addUserr();
-            // })();
-            // return
+            return
         });
         return <>
             {loading && <h4>Loading...</h4>}
@@ -108,13 +112,8 @@ export default function uuid({ bool, room, user, errors }: Props) {
                 <img src={authUser?.photoURL as string}></img>
             </>)}
         </>
-        // return <>
-        //     <div>
-        //       <h1>My App</h1>
-        //       <p>Please sign-in:</p>
-        //       <SignIn />
-        //     </div>
-        //   </>;    
+
+
     }
     else {
         console.log(`passed bool`);
@@ -130,28 +129,14 @@ export default function uuid({ bool, room, user, errors }: Props) {
         });
         console.log(`user is: ${JSON.stringify(user)}`);
         console.log(`room is: ${JSON.stringify(room)}`);
-        useEffect( () => {
-            console.log(`from use effect 2`)
-            if (authUser) async () => {
-                console.log(`trying to create another user`)
-                const name = authUser?.displayName as string
-                const userUuid = uuidV4();
-                const newUser: User = {
-                    id: userUuid,
-                    name: name,
-                    room: router.query.uuid as string
-                }
-                await addUser(newUser);
-                console.log(`after creating another user`)
-                router.push({
-                    href: `/room/${router.query.uuid as string}`,
-                    query: {
-                        name: name,
-                        userId: userUuid
-                    }
-                })
+        useEffect(() => {
+            const onDC = async () => {
+                alert(`please don't leave :(`);
+                await removeRoomUser(user);
+                await removeUser(user);
             }
-        }, []);
+            window.addEventListener(`unload`, onDC);
+        });
         return <>
             <Head>
                 <title>SoloChomp</title>
@@ -206,14 +191,14 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }: 
             return { props: { bool: false } }
         }
         // use onsnapshot only on the client side as it opens a socket
-        const room : any = await firebase.firestore().collection(`rooms`).doc(`${id}`).get().then((doc) => {
+        const room: any = await firebase.firestore().collection(`rooms`).doc(`${id}`).get().then((doc) => {
             if (doc.exists) return doc.data();
             console.log(`there is no such room document: ${doc}-${doc.data()}`)
             return doc;
         }).catch((error) => {
             console.log(`error in fetching a room: ${error}`)
         });
-        const user : any = await firebase.firestore().collection(`users`).doc(`${userId}`).get().then((doc) => {
+        const user: any = await firebase.firestore().collection(`users`).doc(`${userId}`).get().then((doc) => {
             if (doc.exists) return doc.data();
             console.log(`there is no such user document: ${doc}-${doc.data()}`)
             return doc;
@@ -226,9 +211,9 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }: 
         // will receive `item` as a prop at build time
         // return { props: { item } }
 
-        
+
         console.log(`room var is: ${JSON.stringify(room)}, user: ${user}`);
-        room.users.forEach( (user : User) => {
+        room.users.forEach((user: User) => {
             // user.created = firebase.firestore.Timestamp.toDate()
             user.created = user.created.toDate();
             // console.log(`now user.created is: ${user.created} of type: ${typeof user.created}`);
