@@ -15,7 +15,7 @@ interface Props {
 const Component: React.FC<Props> = (props) => {
   let canvasRef : HTMLCanvasElement | null = null;
   const canvasRef2 = useRef(null);
-  useEffect(() => {
+  useEffect( () => {
     // Run after mount
     let game = new Game(props.userIndex, props.roomId, props.userId, canvasRef2.current, props.n, props.m);
     

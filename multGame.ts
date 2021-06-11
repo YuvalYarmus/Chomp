@@ -1,6 +1,7 @@
 import { Game, Circle } from "./Game";
 
 import init from "./firebase/initFirebase"
+import addRoomMove from "./firebase/addRoomMove"
 
 
 
@@ -12,7 +13,6 @@ it to the canvas component as a param
 */
 export default class MultGame extends Game {
     
-    myTurn : number = 0;
     canPlay : boolean = false;
     room: string;
     userId: string;
@@ -24,14 +24,13 @@ export default class MultGame extends Game {
     canvas: HTMLCanvasElement | null = null,
     n: number = -1,
     m: number = -1, 
-    myTurn = 0,
   ) {
     super(canvas, n , m);
     this.userIndex = userIndex;
     this.room = room;
-    this.myTurn = myTurn;
     this.userId = userId;
-    this.canPlay = this.userIndex === 2;
+    this.canPlay = this.userIndex === 1;
+    init();
   }
 
   /**
@@ -48,19 +47,29 @@ export default class MultGame extends Game {
     for (const circle of this.circles) {
       if (this.isIntersect(CANVASpos, circle) === true) {
 
-
-
+        if (this.userIndex != 0 && this.userIndex != 1) {
+          alert(`You are not one of the 2 players. Please do not interupt the game.`)
+          break;
+        }
+        else if (!this.canPlay) {
+          alert(`Please wait for your turn.`)
+          break;
+        }
         i = circle.i;
         j = circle.j;
         if (circle.i === 0 && circle.j === 0) {
+          this.canPlay = !this.canPlay;
           this.turns++;
           this.updateState(circle);
+          this.updateMove();
           this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
           console.log("THE GAME HAS ENDED");
           setTimeout(() => this.promptGameState.bind(this)() , 300);
         } else {
+          this.canPlay = !this.canPlay;
           this.turns++;
           this.updateState(circle);
+          this.updateMove();
           this.circles = this.fitShapes(this.canvas, this.globalGameState);
           this.drawShapes(this.circles);
         }
@@ -69,7 +78,24 @@ export default class MultGame extends Game {
     return [j, i];
   }
 
-  
+  updateMove() {
+    (async () => {
+      try {
+        const res = await addRoomMove(this.globalGameState, this.room);
+        if (!res) {
+          console.log(`updating move in db failed: ${res}`)
+          throw new Error(`updating move in db failed custom error`);
+        }
+      } catch (e) {
+        console.log(`error updating move in db: ${e}`);
+      }
+    }).bind(this)();
+    
+  }
+
+  movesListener() {
+    
+  }
 
 
 }

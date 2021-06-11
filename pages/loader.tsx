@@ -31,9 +31,9 @@ function Load() {
             <form id="form" class="form">
             <input id="full_name" placeholder="Plese enter your name" name="full_name" required>
             <label for="n" ${style}>The amount of columns:</label>
-            <input type="number" id="n" value="6" name="n" min="2" max="8">
+            <input type="number" id="n" value="7" name="n" min="2" max="8">
             <label for="m" ${style}>The amount of rows:</label>
-            <input type="number" id="m" value="7" name="m" min="2" max="8">
+            <input type="number" id="m" value="9" name="m" min="2" max="12">
             <button type="submit" class="btn">Start the game!</button>
             </form></main>
             `;

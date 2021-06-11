@@ -4,13 +4,13 @@ import { Game } from "../Game";
 import init from "../firebase/initFirebase";
 import Firebase from "firebase";
 
-export type User = {
+type User = {
   id: string;
   name: string;
   room: string;
   created?: any;
 };
-export type Room = {
+type Room = {
   population: number;
   uuid: string;
   moves?: string[];
@@ -27,7 +27,7 @@ type Chat = {
 
 type Message = {
   message: string;
-  time: string;
+  time: any;
   sender: string;
 };
 
@@ -58,13 +58,18 @@ export default async function addRoomToFirestore(room: Room) {
           },
           { merge: true }
         );
+        const firstMessage : Message = {
+          message: `chat for room ${room.uuid} created`,
+          time: firebase.firestore.Timestamp.now(),
+          sender : 'Server'
+        } 
       await firebase
         .firestore()
         .collection(`rooms`)
         .doc(`${room.uuid}`)
         .collection(`chat`)
         .add({
-          messages: [],
+          firstMessage
         })
         .then(() => {
           console.log(`sent to firestorm successfully from addRoom`);

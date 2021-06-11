@@ -28,7 +28,7 @@ type Chat = {
 
 type Message = {
   message: string;
-  time: string;
+  time: any;
   sender: string;
 };
 
@@ -69,8 +69,13 @@ export async function writeToFireStore(room: Room, user: User) {
           },
           { merge: true }
         );
+        const firstMessage : Message = {
+          message: `chat for room ${room.uuid} created`,
+          time: firebase.firestore.Timestamp.now(),
+          sender : 'Server'
+        } 
         await firebase.firestore().collection(`rooms`).doc(`${room.uuid}`).collection(`chat`).add({
-            messages : []
+            firstMessage
         }).then( () => {
             console.log(`sent to firestorm successfully from write`);
             alert('sent to firestorm successfully from write');

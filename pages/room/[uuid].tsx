@@ -20,47 +20,28 @@ import Auth from "../../components/authComponent"
 import addUserToUsers from "../../firebase/addUser"
 import addRoomUser from "../../firebase/addRoomUser"
 import removeRoomUser from "../../firebase/RemoveRoomUser"
-import RemoveUser from "../../firebase/RemoveUser"
 import removeUser from '../../firebase/RemoveUser'
-import addRoomMove from "../../firebase/addRoomMove"
 import getRoomUsers from "../../firebase/getRoomUsers"
 import getRoomMoves from "../../firebase/getRoomMoves";
 
 const { v4: uuidV4, validate: uuidValidate } = require("uuid");
 
-const Canvas = dynamic(() => import("../../components/gameComponent"), {
+const Canvas = dynamic(() => import("../../components/multiplayerComponent"), {
     ssr: false,
 });
 
-async function isFirst2(roomId: string, userId: string): Promise<boolean> {
-    return new Promise<boolean>(async (resolve, reject) => {
-        try {
-            const roomUsers = await getRoomUsers(roomId);
-            if (roomUsers === null) throw new Error(`there are no users in the room - checked within the game class`);
-            for (let i = 0; i < 2 && i < roomUsers!.length; i++) {
-                if (roomUsers![i].id === userId) resolve(true);
-            }
-            resolve(false);
-        } catch (err) {
-            console.log(`had an error trying to determine if the user is a player: ${err}`)
-            reject(err);
-        }
-    });
-}
-
 init()
+type Props = {
+    bool: boolean, room: Room, user: User, userIndex : number, errors: string
+}
 type divProps = {
     children?: ReactNode
     id?: string
     class?: string
 }
-
 type soundProps = {
     controls?: boolean
     src?: string
-}
-type Props = {
-    bool: boolean, room: Room, user: User, userIndex : number, errors: string
 }
 
 function WrapDiv(props: divProps) {
@@ -78,7 +59,7 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
     const router = useRouter();
     const [authUser, loading, error] = useAuthState(firebase.auth());
     console.log(`hello there! I am in page!`)
-    console.log(`bool is: ${bool}, room: ${room}, user: ${user}, errors: ${errors}`);
+    console.log(`bool is: ${bool}, room: ${room}, user: ${user}, userIndex: ${userIndex}, errors: ${errors}`);
     if (!bool) {
 
         console.log(`in bool statement`)
@@ -137,7 +118,7 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
         console.log(`passed bool`);
         const soundBar = <SoundItem controls src="" />
         const soundWrap = <WrapDiv id="soundControl" children={soundBar} />;
-        const canvas = <Canvas n={room.n} m={room.m} class="w-4/5 h-4/5" id="canvas" />;
+        const canvas = <Canvas roomId={user.room} userId={user.id} userIndex={userIndex} n={room.n} m={room.m} class="w-4/5 h-4/5" id="canvas" />;
         const main = <WrapDiv class="w-screen h-screen" id="flexWrap" children={canvas} />;
         const roomKeys = Object.keys(room)
         const roomValues = Object.values(room)
@@ -192,15 +173,7 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
     }
 }
 
-// This function gets called at build time on server-side.
-// It won't be called on client-side, so you can even do
-// direct database queries.
 
-
-// missions: 
-// 1. create the invite setup
-// 2. listen to realtime snapshot updates
-// 3. 
 export const getServerSideProps: GetServerSideProps = async ({ params, query }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
     try {
         const id = params?.uuid, userId = query?.userId
