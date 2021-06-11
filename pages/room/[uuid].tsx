@@ -22,6 +22,9 @@ import addRoomUser from "../../firebase/addRoomUser"
 import removeRoomUser from "../../firebase/RemoveRoomUser"
 import RemoveUser from "../../firebase/RemoveUser"
 import removeUser from '../../firebase/RemoveUser'
+import addRoomMove from "../../firebase/addRoomMove"
+import getRoomUsers from "../../firebase/getRoomUsers"
+import getRoomMoves from "../../firebase/getRoomMoves";
 
 const { v4: uuidV4, validate: uuidValidate } = require("uuid");
 
@@ -29,6 +32,21 @@ const Canvas = dynamic(() => import("../../components/gameComponent"), {
     ssr: false,
 });
 
+async function isFirst2(roomId: string, userId: string): Promise<boolean> {
+    return new Promise<boolean>(async (resolve, reject) => {
+        try {
+            const roomUsers = await getRoomUsers(roomId);
+            if (roomUsers === null) throw new Error(`there are no users in the room - checked within the game class`);
+            for (let i = 0; i < 2 && i < roomUsers!.length; i++) {
+                if (roomUsers![i].id === userId) resolve(true);
+            }
+            resolve(false);
+        } catch (err) {
+            console.log(`had an error trying to determine if the user is a player: ${err}`)
+            reject(err);
+        }
+    });
+}
 
 init()
 type divProps = {
@@ -42,7 +60,7 @@ type soundProps = {
     src?: string
 }
 type Props = {
-    bool: boolean, room: Room, user: User, errors: string
+    bool: boolean, room: Room, user: User, userIndex : number, errors: string
 }
 
 function WrapDiv(props: divProps) {
@@ -56,7 +74,7 @@ function SoundItem({ src, controls = false }: soundProps) {
     return <audio src={src}></audio>
 }
 
-export default function uuid({ bool, room, user, errors }: Props) {
+export default function uuid({ bool, room, user, userIndex, errors }: Props) {
     const router = useRouter();
     const [authUser, loading, error] = useAuthState(firebase.auth());
     console.log(`hello there! I am in page!`)
@@ -206,28 +224,21 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }: 
             console.log(`error in fetching a room: ${error}`)
         });
 
-        // const item = sampleUserData.find((data) => data.id === Number(id))
-        // By returning { props: item }, the StaticPropsDetail component
-        // will receive `item` as a prop at build time
-        // return { props: { item } }
-
-
         console.log(`room var is: ${JSON.stringify(room)}, user: ${user}`);
-        room.users.forEach((user: User) => {
-            // user.created = firebase.firestore.Timestamp.toDate()
-            user.created = user.created.toDate();
-            // console.log(`now user.created is: ${user.created} of type: ${typeof user.created}`);
-            user.created = JSON.stringify(user.created);
-            // console.log(`now user.created is: ${user.created} of type: ${typeof user.created}`);
-        })
+        room.users.forEach((user: User) => user.created = JSON.stringify(user.created.toDate()))
         user.created = JSON.stringify(user.created.toDate());
-        // console.log(`id: ${id}, userId: ${userId}`);
-        // console.log(`room var is: ${JSON.stringify(room)}, user: ${user}`);
+        const userIndex = (() => {
+            for (let i = 0; i < room.users.length; i++) {
+                if (room.users[i].id === user.id) return i;
+            }
+            return -1;
+        })();
         return {
             props: {
                 bool: true,
                 room: room,
                 user: user,
+                userIndex : userIndex,
                 errors: null
             }
         }

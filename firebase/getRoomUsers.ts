@@ -4,14 +4,14 @@ import { Game } from "../Game";
 import init from "../firebase/initFirebase";
 import Firebase from "firebase";
 
-export type User = {
+type User = {
   id: string;
   name: string;
   room: string;
   created?: any;
 };
 
-export async function getRoomUsers(uuid: string) {
+export default async function getRoomUsers(uuid: string) {
   return new Promise<User[] | null>(async (resolve, reject) => {
     try {
       const room: any = (
