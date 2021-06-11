@@ -4,6 +4,9 @@ import { useEffect } from 'react'
 import 'tailwindcss/tailwind.css'
 import init from '../firebase/initFirebase'
 import { writeToFireStore, Room, User, createGameString } from '../firebase/loadWrite'
+import addUser from '../firebase/addUser'
+import addRoomUser from '../firebase/addRoomUser'
+import addRoom from '../firebase/addRoom'
 const { v4: uuidV4, validate: uuidValidate } = require("uuid");
 import { useRouter } from 'next/router'
 
@@ -61,8 +64,14 @@ function Load() {
                     users: [user],
                 }
                 console.log(`from loader: room: ${JSON.stringify(room)}, user: ${JSON.stringify(user)}`)
-                await writeToFireStore(room, user);
-                // alert(`after write to firestore`);
+                
+                await addRoom(room);
+                await addUser(user);
+                await addRoomUser(user);
+                
+                // await writeToFireStore(room, user);
+                
+                alert(`after write to firestore`);
                 console.log(`from loader: after write to firestore`);
                 router.push({
                     pathname: `/room/${roomUuid}`,

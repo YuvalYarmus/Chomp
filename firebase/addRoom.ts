@@ -50,7 +50,7 @@ export default async function addRoomToFirestore(room: Room) {
           {
             population: 0,
             uuid: room.uuid,
-            moves: [createGameString(room.n, room.m)],
+            // moves: [createGameString(room.n, room.m)],
             users: [],
             n: room.n,
             m: room.m,
@@ -58,6 +58,17 @@ export default async function addRoomToFirestore(room: Room) {
           },
           { merge: true }
         );
+        const firstState = createGameString(room.n, room.m);
+        await firebase
+        .firestore().
+        collection(`rooms`)
+        .doc(`${room.uuid}`)
+        .collection(`moves`)
+        .doc(`${firstState}`).set({
+          move: firstState,
+          by: `Initial from server`,
+          time: firebase.firestore.Timestamp.now(),
+        }, {merge: true})
         const firstMessage : Message = {
           message: `chat for room ${room.uuid} created`,
           time: firebase.firestore.Timestamp.now(),

@@ -22,7 +22,7 @@ import addRoomUser from "../../firebase/addRoomUser"
 import removeRoomUser from "../../firebase/RemoveRoomUser"
 import removeUser from '../../firebase/RemoveUser'
 import getRoomUsers from "../../firebase/getRoomUsers"
-import getRoomMoves from "../../firebase/getRoomMoves";
+import { getRoomMoves } from "../../firebase/getRoomMoves";
 
 const { v4: uuidV4, validate: uuidValidate } = require("uuid");
 
@@ -32,7 +32,7 @@ const Canvas = dynamic(() => import("../../components/multiplayerComponent"), {
 
 init()
 type Props = {
-    bool: boolean, room: Room, user: User, userIndex : number, errors: string
+    bool: boolean, room: Room, user: User, userIndex: number, errors: string
 }
 type divProps = {
     children?: ReactNode
@@ -119,9 +119,50 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
         const soundBar = <SoundItem controls src="" />
         const soundWrap = <WrapDiv id="soundControl" children={soundBar} />;
         const canvas = <Canvas roomId={user.room} userId={user.id} userIndex={userIndex} n={room.n} m={room.m} class="w-4/5 h-4/5" id="canvas" />;
-        const main = <WrapDiv class="w-screen h-screen" id="flexWrap" children={canvas} />;
-        const roomKeys = Object.keys(room)
-        const roomValues = Object.values(room)
+        const chat = <>
+            <div className="chat-container">
+                <header className="chat-header" id="chat-header">
+                    <h1><i className="fas fa-smile"></i> ChompChat</h1>
+                    <h1>Sound: <div id="soundControl"></div></h1>
+                    <div className="tooltip">
+                        <button id="copyBtn">
+                            <span className="btn tooltiptext" id="myTooltip"
+                            >Invite a friend! (Copy to clipboard)</span
+                            >
+                        </button>
+                    </div>
+                    <a href="../index.html" className="btn">Leave Room</a>
+                </header>
+
+                <div className="chat-main">
+                    <div className="chat-sidebar">
+                        <h2><i className="fas fa-comments"></i> Room Name:</h2>
+                        <h3 id="room-name"></h3>
+                        <h2><i className="fas fa-users"></i> Users:</h2>
+                        <ul id="users"></ul>
+                    </div>
+                    <div className="chat-messages"></div>
+                </div>
+                <div className="chat-form-container">
+                    <form id="chat-form">
+                        <input
+                            id="msg"
+                            type="text"
+                            placeholder="Enter Message"
+                            required
+                            autoComplete="off"
+                        />
+                        <button id="submitBtn" className="btn">
+                            <i className="fas fa-paper-plane"></i> Send
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </>
+        const main = <WrapDiv class="w-screen h-screen flex-1 flex-col md:flex-row"
+            id="flexWrap" children={[canvas, chat]} />;
+        const roomKeys = Object.keys(room);
+        const roomValues = Object.values(room);
         const roomList = roomKeys.map((element, index) => {
             if (element != "users") return <li key={element}>{element}: {roomValues[index]}</li>
             return <li key={element}>{element}: {roomValues[index]?.toString()}</li>
@@ -149,6 +190,7 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
                     crossOrigin="anonymous"
                 />
                 <link rel="stylesheet" href="/css/index2.css" />
+                <link rel="stylesheet" href="/css/chat.css" />
                 <link rel="icon" href="favicon.ico" />
             </Head>
             <h1>Welcome to the NextChomp Bot Page!</h1>
@@ -211,7 +253,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }: 
                 bool: true,
                 room: room,
                 user: user,
-                userIndex : userIndex,
+                userIndex: userIndex,
                 errors: null
             }
         }
