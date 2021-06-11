@@ -11,7 +11,7 @@ export type User = {
   created?: any;
 };
 
-export default async function getRoomUsers(uuid: string) {
+export async function getRoomUsers(uuid: string) {
   return new Promise<User[] | null>(async (resolve, reject) => {
     try {
       const room: any = (
