@@ -5,7 +5,7 @@ import init from "../firebase/initFirebase";
 import Firebase from "firebase";
 
 export default async function getRoomMoves(uuid: string) {
-  return new Promise(async (resolve, reject) => {
+  return new Promise<string[]>(async (resolve, reject) => {
     try {
       init();
       const room: any = (
@@ -24,18 +24,4 @@ export default async function getRoomMoves(uuid: string) {
     }
   });
 
-  //   try {
-  /*
-    init();
-            const room : any = (await firebase.firestore().collection(`rooms`).doc(`${uuid}`).get()).data();
-            const moves : string[] = room.moves;
-            console.log(`\nIn addRoomUser - room is: ${JSON.stringify(room)} and moves is ${JSON.stringify(moves)}`)
-            */
-  //     return new Promise<string[]>((resolve) => {
-  //       console.log(`added user to Room (from resolve)`);
-  //       resolve(moves);
-  //     });
-  //   } catch (err) {
-  //     return new Promise<null>((reject) => reject(null));
-  //   }
 }

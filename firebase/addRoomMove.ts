@@ -5,7 +5,7 @@ import init from "../firebase/initFirebase";
 import Firebase from "firebase";
 
 export default async function addRoomMove(move: string, uuid: string) {
-  return new Promise(async (resolve, reject) => {
+  return new Promise<boolean>(async (resolve, reject) => {
     try {
       init();
       setTimeout(async () => {
@@ -23,25 +23,5 @@ export default async function addRoomMove(move: string, uuid: string) {
         reject(false);
     }
   });
-
-//   try {
-//     init();
-//     setTimeout(async () => {
-//       await firebase
-//         .firestore()
-//         .collection(`rooms`)
-//         .doc(`${uuid}`)
-//         .update({
-//           moves: firebase.firestore.FieldValue.arrayUnion(move),
-//         });
-//     });
-//     return new Promise<boolean>((resolve) => {
-//       console.log(`added move to moves in Room (from resolve)`);
-//       resolve(true);
-//     });
-//   } catch (err) {
-//     console.log(`failed to move to users in room: ${err}`);
-//     return new Promise<boolean>((reject) => reject(false));
-//   }
 
 }
