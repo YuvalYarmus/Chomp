@@ -153,7 +153,7 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
         });
         return <>
             {loading && <h4>Loading...</h4>}
-            {!authUser && <Auth path={router.asPath} />}
+            {!authUser && <div className="flex flex-col items-center mt-10"><Auth path={router.asPath} /></div>}
             {errors && <h1>{errors}</h1>}
             {authUser && <>
                 <h1>{authUser?.displayName}</h1>
