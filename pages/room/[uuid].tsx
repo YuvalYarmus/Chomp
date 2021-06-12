@@ -98,23 +98,24 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
 
         console.log(`in bool statement`)
         console.log(`${router.asPath}`)
-        console.log(`auth user: ${JSON.stringify(authUser)}, loading: ${JSON.stringify(loading)}`)
+        console.log(`auth user: ${authUser}, loading: ${JSON.stringify(loading)}`)
         useEffect(() => {
-            console.log(`from use effect with: ${authUser}`)
+            console.log(`from use effect - auth user: ${authUser}, loading: ${JSON.stringify(loading)}`);
             if (authUser != null) (async () => {
                 const name = authUser?.displayName as string
                 const userUuid = uuidV4();
-                const newUser: User = {
+                const newUser: User = { 
                     id: userUuid,
                     name: name,
                     room: router.query.uuid as string
                 }
                 console.log(`before addUserToUsers from useEffect`)
                 const answer = await addRoomUser(newUser);
+                console.log(`\nanwer from addRoomUser was: ${answer}\n`);
                 if (answer === true) {
                     await addUserToUsers(newUser);
                     const named = name.trim().replace(/\s/g, '')
-                    const url = `/room/${router.query.uuid as string}?name=${named}&userId=${answer}`;
+                    const url = `/room/${router.query.uuid as string}?name=${named}&userId=${newUser.id}`;
                     // const url = `/room/${router.query.uuid as string}?name=${name}&userId=${userUuid}`;
                     console.log(`move to url: ${url}`);
                     router.push(url);
@@ -139,11 +140,11 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
             {loading && <h4>Loading...</h4>}
             {!authUser && <Auth path={router.asPath} />}
             {errors && <h1>{errors}</h1>}
-            {authUser && (<>
+            {authUser && <>
                 <h1>{authUser?.displayName}</h1>
                 <h1>{authUser?.photoURL as string}</h1>
                 <img src={authUser?.photoURL as string}></img>
-            </>)}
+            </>}
         </>
 
 

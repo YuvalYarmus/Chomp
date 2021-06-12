@@ -35,24 +35,14 @@ export default async function addRoomUser(user: User) {
   return new Promise<string | boolean>(async (resolve, reject) => {
     try {
       init();
-      const room: any = (
-        await firebase.firestore().collection(`rooms`).doc(`${user.room}`).get()
-      ).data();
+      const room: any = (await firebase.firestore().collection(`rooms`).doc(`${user.room}`).get()).data();
       const users: [] = room.users;
-      console.log(
-        `\nIn addRoomUser - room is: ${JSON.stringify(
-          room
-        )} and users is ${JSON.stringify(users)}`
-      );
-      const exists = users.some(
-        (roomUser: User) => user.name === roomUser.name
-      );
+      console.table([room, users]);
+      const exists = users.some((roomUser: User) => user.name === roomUser.name);
       if (exists) {
         users.forEach((roomUser: User) => {
           if (user.name === roomUser.name) {
-            console.log(
-              `a user with that name - ${roomUser.name} already exists`
-            );
+            console.log(`a user with that name - ${roomUser.name} already exists`);
             alert(`a user with that name - ${roomUser.name} already exists `);
             resolve(roomUser.id);
           }
