@@ -154,10 +154,10 @@ export class Game {
 
   promptGameState() {
     let n: number = parseInt(
-      prompt("Please enter the amount of rows you want (no more than 8)") || "8"
+      prompt("Please enter the amount of rows you want (no more than 10)") || "8"
     );
     let m: number = parseInt(
-      prompt("Please enter the amount of columns you want (no more than 8)") ||
+      prompt("Please enter the amount of columns you want (no more than 12)") ||
         "11"
     );
     if (isNaN(n) || n > 10) n = 9;
