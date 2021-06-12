@@ -113,17 +113,17 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
                 const answer = await addRoomUser(newUser);
                 if (answer === true) {
                     await addUserToUsers(newUser);
-                    const url = `/room/${router.query.uuid as string}?name=${name}&userId=${userUuid}`;
+                    const named = name.trim().replace(/\s/g, '')
+                    const url = `/room/${router.query.uuid as string}?name=${named}&userId=${answer}`;
+                    // const url = `/room/${router.query.uuid as string}?name=${name}&userId=${userUuid}`;
                     console.log(`move to url: ${url}`);
                     router.push(url);
                 }
                 else {
                     console.log(`found a user with that name already: ${name}`);
-                    alert(`a user with that name probably already exists`);
-                    const named = name.trim().replace(/\s/g, '')
-                    const url = `/room/${router.query.uuid as string}?name=${named}&userId=${answer}`;
-                    console.log(`move to url: ${url}`);
-                    router.push(url);
+                    alert(`a user with that name probably already exists choose a different one`);
+                    firebase.auth().signOut();
+                    // router.push(``)
                 }
                 return () => {
                     (async () => {

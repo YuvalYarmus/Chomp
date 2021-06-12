@@ -23,7 +23,7 @@ export default function auth({path} : Props) {
     
             },
             firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-            firebase.auth.GithubAuthProvider.PROVIDER_ID
+            firebase.auth.GithubAuthProvider.PROVIDER_ID,
         ],
         // Other config options...
     }
