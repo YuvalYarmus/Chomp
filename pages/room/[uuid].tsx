@@ -17,7 +17,8 @@ import removeRoomUser from "../../firebase/RemoveRoomUser"
 import removeUser from '../../firebase/RemoveUser'
 import Auth from "../../components/authComponent"
 import { addMessage } from "../../firebase/addMessage"
-import { getRoom } from "../../firebase/getRoom"
+import getRoom from "../../firebase/getRoom"
+import getUser from "../../firebase/getUser"
 import firestore from "firebase/firestore";
 import { Game } from "../../Game";
 import addUser from "../../firebase/userWrite"
@@ -311,25 +312,12 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }: 
     try {
         const id = params?.uuid, userId = query?.userId
         init();
-        if (!id || !userId || id === undefined || userId === undefined) {
-            return { props: { bool: false } }
-        }
+        if (!id || !userId || id === undefined || userId === undefined) return { props: { bool: false } } 
         else console.log(`uuid is: ${id} and userId is : ${userId}`);
+
         // use onsnapshot only on the client side as it opens a socket
-        const room: any = await firebase.firestore().collection(`rooms`).doc(`${id}`).get().then((doc) => {
-            if (doc.exists) return doc.data();
-            console.log(`there is no such room document: ${doc}-${doc.data()}`)
-            return doc;
-        }).catch((error) => {
-            console.log(`error in fetching a room: ${error}`)
-        });
-        const user: any = await firebase.firestore().collection(`users`).doc(`${userId}`).get().then((doc) => {
-            if (doc.exists) return doc.data();
-            console.log(`there is no such user document: ${doc}-${doc.data()}`)
-            return doc;
-        }).catch((error) => {
-            console.log(`error in fetching a room: ${error}`)
-        });
+        const room: Room | null = await getRoom(id);
+        const user: User | null = await getUser(userId);
 
         console.log(`room var is: ${JSON.stringify(room)}, user: ${user}`);
         room.users.forEach((user: User) => user.created = JSON.stringify(user.created.toDate()))
