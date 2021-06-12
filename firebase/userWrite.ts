@@ -1,8 +1,6 @@
 import firebase from "firebase/app";
-import firestore from "firebase/firestore";
-import { Game } from "../Game";
-import init from "../firebase/initFirebase";
-import { User } from "./loadWrite";
+import init from "./initFirebase";
+import { User } from "./types"
 
 // export type User = {
 //   id: string;
