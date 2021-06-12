@@ -3,7 +3,7 @@ import Head from 'next/head'
 import { useEffect } from 'react'
 import 'tailwindcss/tailwind.css'
 import init from '../firebase/initFirebase'
-import { writeToFireStore, Room, User, createGameString } from '../firebase/loadWrite'
+import { Room, User } from "../firebase/types"
 import addUser from '../firebase/addUser'
 import addRoomUser from '../firebase/addRoomUser'
 import addRoom from '../firebase/addRoom'

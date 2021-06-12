@@ -5,7 +5,9 @@ import addRoomMove from "./firebase/addRoomMove";
 
 import firebase from "firebase/app";
 import firestore from "firebase/firestore";
-import { getRoomMoves, Move } from "./firebase/getRoomMoves";
+import { getRoomMoves} from "./firebase/getRoomMoves";
+import { Move } from "./firebase/types"
+
 
 /*
 I reached the conclusion that the real time listening to the db should be in this multGame class
