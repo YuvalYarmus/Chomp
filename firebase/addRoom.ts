@@ -24,7 +24,7 @@ export default async function addRoomToFirestore(room: Room) {
             users: [],
             n: room.n,
             m: room.m,
-            currTurn: 0,
+            // currTurn: 0,
           },
           { merge: true }
         );
