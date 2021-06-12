@@ -88,6 +88,7 @@ function outputMessage(message: Message) {
     para.innerText = message.message;
     div.appendChild(para);
     document.querySelector(".chat-messages")!.appendChild(div);
+    div.focus();
 }
 export default function uuid({ bool, room, user, userIndex, errors }: Props) {
     const router = useRouter();
@@ -163,11 +164,15 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
         console.log(`user is: ${JSON.stringify(user)}`);
         console.log(`room is: ${JSON.stringify(room)}`);
         useEffect(() => {
+            console.log(`IN SECOND USE EFFECT ON PAGE`)
+            // making the next js div take the size of the entire screen
             document.getElementById(`__next`)!.classList.add(`w-screen`);
             document.getElementById(`__next`)!.classList.add(`h-screen`);
+            // adding the copy button functionality
             document.getElementById("copyBtn")!.addEventListener("click", () => {
                 execCopy(`${window.location.href.split("?")[0] as string}`);
             });
+            // adding the send button functionality
             document.getElementById("chat-form")!.addEventListener(`submit`, (e: Event) => {
                 e.preventDefault();
                 const msgElement = (document.getElementById("msg")!) as HTMLInputElement;
@@ -176,6 +181,7 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
                 msgElement.value = "";
                 msgElement.focus();
             });
+            // listen to changes in the room's chat subcollection
             firebase
                 .firestore()
                 .collection(`rooms`)
@@ -186,21 +192,38 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
                     let changes = snapshot.docChanges();
                     console.log(`got changes in the chat collection - pending: ${snapshot.metadata.hasPendingWrites}`);
                     changes.forEach((change) => {
+                        console.log(`change of type: ${change.type}`)
                         console.log(change.doc.data())
                         if (change.type === "added") {
                             let message = change.doc.data() as Message;
-                            if (message.message != "" && !snapshot.metadata.hasPendingWrites) outputMessage(message);
-                            else console.log(`didnt output the message because pending is ${snapshot.metadata.hasPendingWrites}`)
+                            // if (message.message != "" && !snapshot.metadata.hasPendingWrites) outputMessage(message);
+                            // else console.log(`didnt output the message because pending is ${snapshot.metadata.hasPendingWrites}`)
+                            if (message.message != "" && message.time != null) outputMessage(message);                            
                         }
+                        else if (change.type === "modified") outputMessage(change.doc.data() as Message);                        
                     });
                 });
-            const onDC = async () => {
+            const routeChangeStart = () => {
+                alert(`you are about to leave this site`)
+            }
+            const beforeunload = async () => {
                 alert(`please don't leave :(`);
                 await removeRoomUser(user);
                 await removeUser(user);
             }
-            window.addEventListener(`unload`, onDC);
-        });
+            router.events.on('routeChangeStart', routeChangeStart);
+            window.addEventListener('beforeunload', beforeunload);
+            return () => {
+                window.removeEventListener('beforeunload', beforeunload);
+                router.events.off('routeChangeStart', routeChangeStart);
+              };
+            // const onDC = async () => {
+                // alert(`please don't leave :(`);
+                // await removeRoomUser(user);
+                // await removeUser(user);
+            // }
+            // window.addEventListener(`unload`, onDC);
+        }, []);
         return <>
             <Head>
                 <title>SoloChomp</title>
@@ -224,7 +247,7 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
             <div className="mt-8 ml-8 mr-8 h-5/6 w-auto flex flex-1 flex-col md:flex-row" id="flexWrap">
                 <Canvas roomId={user.room} userId={user.id} userIndex={userIndex} n={room.n} m={room.m}
                     class="w-3/6 " id="canvas" />
-                <span className="ml-4 mr-4"></span>
+                {/* <span className="ml-4 mr-4"></span> */}
                 <>
                     <div className="chat-container w-3/6 h-auto">
                         <header className="chat-header" id="chat-header">
@@ -291,6 +314,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }: 
         if (!id || !userId || id === undefined || userId === undefined) {
             return { props: { bool: false } }
         }
+        else console.log(`uuid is: ${id} and userId is : ${userId}`);
         // use onsnapshot only on the client side as it opens a socket
         const room: any = await firebase.firestore().collection(`rooms`).doc(`${id}`).get().then((doc) => {
             if (doc.exists) return doc.data();

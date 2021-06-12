@@ -1,35 +1,6 @@
 import firebase from "firebase/app";
-import firestore from "firebase/firestore";
-import { Game } from "../Game";
 import init from "../firebase/initFirebase";
-import Firebase from "firebase";
-
-export type User = {
-  id: string;
-  name: string;
-  room: string;
-  created?: any;
-};
-export type Room = {
-  population: number;
-  uuid: string;
-  moves?: string[];
-  users: User[];
-  n: number;
-  m: number;
-  currTurn: number;
-  chat?: Chat;
-};
-
-export type Chat = {
-  messages: Message[];
-};
-
-export type Message = {
-  message: string;
-  time: string;
-  sender: string;
-};
+import {User, Room, Chat, Message} from "./types"
 
 export default async function removeRoomUser(user: User) {
   try {

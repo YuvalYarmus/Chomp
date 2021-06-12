@@ -1,14 +1,6 @@
 import firebase from "firebase/app";
-import firestore from "firebase/firestore";
-import { Game } from "../Game";
 import init from "../firebase/initFirebase";
-import Firebase from "firebase";
-
-export type Message = {
-  message: string;
-  time: any;
-  sender: string;
-};
+import {User, Room, Chat, Message, Move} from "./types"
 
 export async function addMessage(message: string, sender: string, uuid: string) {
   return new Promise<boolean>(async (resolve, reject) => {

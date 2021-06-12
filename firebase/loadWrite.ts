@@ -1,38 +1,7 @@
 import firebase from "firebase/app";
-import firestore from "firebase/firestore";
-import { Game } from "../Game";
-import init from '../firebase/initFirebase'
-import Firebase from 'firebase'
+import { User, Room, Chat, Message } from "./types";
 
-export type User = {
-  id: string;
-  name: string;
-  room: string;
-  created? : any;
-};
-
-export type Room = {
-  population: number;
-  uuid: string;
-  moves?: string[];
-  users: User[];
-  n: number;
-  m: number;
-  currTurn: number;
-  chat?: Chat;
-};
-
-type Chat = {
-  messages: Message[];
-};
-
-type Message = {
-  message: string;
-  time: any;
-  sender: string;
-};
-
-export const createGameString = (n: number, m: number): string => {
+const createGameString = (n: number, m: number): string => {
   let string = "";
   for (let i = 0; i < m; i++) {
     string += (n - 1).toString();
@@ -41,56 +10,61 @@ export const createGameString = (n: number, m: number): string => {
 };
 
 export async function writeToFireStore(room: Room, user: User) {
-    try {
-      user['created'] = firebase.firestore.Timestamp.now();
-      await firebase.firestore().collection("users").doc(`${user.id}`).set(
+  try {
+    user["created"] = firebase.firestore.Timestamp.now();
+    await firebase.firestore().collection("users").doc(`${user.id}`).set(
+      {
+        id: user.id,
+        name: user.name,
+        room: user.room,
+        created: firebase.firestore.Timestamp.now(),
+      },
+      { merge: true }
+    );
+
+    await firebase
+      .firestore()
+      .collection(`rooms`)
+      .doc(`${room.uuid}`)
+      .set(
         {
-          id: user.id,
-          name: user.name,
-          room: user.room,
-          created: firebase.firestore.Timestamp.now() 
+          population: 1,
+          uuid: room.uuid,
+          moves: [createGameString(room.n, room.m)],
+          users: [user],
+          n: room.n,
+          m: room.m,
+          currTurn: 0,
         },
         { merge: true }
       );
-
-      await firebase
-        .firestore()
-        .collection(`rooms`)
-        .doc(`${room.uuid}`)
-        .set(
-          {
-            population: 1,
-            uuid: room.uuid,
-            moves: [createGameString(room.n, room.m)],
-            users: [user],
-            n : room.n,
-            m: room.m,
-            currTurn : 0,
-          },
-          { merge: true }
-        );
-        const firstMessage : Message = {
-          message: `chat for room ${room.uuid} created`,
-          time: firebase.firestore.Timestamp.now(),
-          sender : 'Server'
-        } 
-        await firebase.firestore().collection(`rooms`).doc(`${room.uuid}`).collection(`chat`).add({
-            firstMessage
-        }).then( () => {
-            console.log(`sent to firestorm successfully from write`);
-            alert('sent to firestorm successfully from write');
-        });
-        return new Promise<void>( resolve  => {
-          alert(`sent to firestorm successfully from resolve`); 
-          resolve();
-        } );
-        
-    } catch (e) {
-      console.log(`got an error trying inserting a user to users :${e}`);
-      alert(`sending failed`)
-      setTimeout( () => {}, 3000);
-      return new Promise(reject => 'did not work');
-    }
+    const firstMessage: Message = {
+      message: `chat for room ${room.uuid} created`,
+      time: firebase.firestore.Timestamp.now(),
+      sender: "Server",
+    };
+    await firebase
+      .firestore()
+      .collection(`rooms`)
+      .doc(`${room.uuid}`)
+      .collection(`chat`)
+      .add({
+        firstMessage,
+      })
+      .then(() => {
+        console.log(`sent to firestorm successfully from write`);
+        alert("sent to firestorm successfully from write");
+      });
+    return new Promise<void>((resolve) => {
+      alert(`sent to firestorm successfully from resolve`);
+      resolve();
+    });
+  } catch (e) {
+    console.log(`got an error trying inserting a user to users :${e}`);
+    alert(`sending failed`);
+    setTimeout(() => {}, 3000);
+    return new Promise((reject) => "did not work");
+  }
 }
 
 // have a collection of rooms where each room is a document

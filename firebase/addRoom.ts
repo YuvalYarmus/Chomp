@@ -1,35 +1,5 @@
 import firebase from "firebase/app";
-import firestore from "firebase/firestore";
-import { Game } from "../Game";
-import init from "../firebase/initFirebase";
-import Firebase from "firebase";
-
-type User = {
-  id: string;
-  name: string;
-  room: string;
-  created?: any;
-};
-type Room = {
-  population: number;
-  uuid: string;
-  moves?: string[];
-  users: User[];
-  n: number;
-  m: number;
-  currTurn: number;
-  chat?: Chat;
-};
-
-type Chat = {
-  messages: Message[];
-};
-
-type Message = {
-  message: string;
-  time: any;
-  sender: string;
-};
+import {User, Room, Chat, Message, Move} from "./types"
 
 export const createGameString = (n: number, m: number): string => {
   let string = "";

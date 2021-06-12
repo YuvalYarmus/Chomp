@@ -1,15 +1,6 @@
 import firebase from "firebase/app";
-import firestore from "firebase/firestore";
-import { Game } from "../Game";
 import init from "../firebase/initFirebase";
-import Firebase from "firebase";
-
-
-export type Move = {
-  move: string, 
-  by: string,
-  time : any
-}
+import {User, Room, Chat, Message , Move} from "./types"
 
 
 export async function getRoomMoves(uuid: string) {

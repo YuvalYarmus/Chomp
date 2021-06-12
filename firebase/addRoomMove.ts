@@ -1,8 +1,5 @@
 import firebase from "firebase/app";
-import firestore from "firebase/firestore";
-import { Game } from "../Game";
 import init from "../firebase/initFirebase";
-import Firebase from "firebase";
 
 export default async function addRoomMove(move: string, uuid: string, player : string) {
   return new Promise<boolean>(async (resolve, reject) => {
