@@ -23,6 +23,8 @@ import removeRoomUser from "../../firebase/RemoveRoomUser"
 import removeUser from '../../firebase/RemoveUser'
 import getRoomUsers from "../../firebase/getRoomUsers"
 import { getRoomMoves } from "../../firebase/getRoomMoves";
+import { addMessage, Message } from "../../firebase/addMessage"
+
 
 const { v4: uuidV4, validate: uuidValidate } = require("uuid");
 
@@ -55,6 +57,35 @@ function SoundItem({ src, controls = false }: soundProps) {
     return <audio src={src}></audio>
 }
 
+function execCopy(route: string) {
+    var input = document.createElement("input") as HTMLInputElement;
+    var copyText = route;
+    input.value = copyText;
+    document.body.appendChild(input);
+    input.select();
+    input.setSelectionRange(0, 99999);
+    document.execCommand("copy");
+    document.body.removeChild(input);
+    var tooltip = document.getElementById("myTooltip")!;
+    tooltip.innerHTML = "Copied: " + copyText;
+}
+function outputMessage(message: Message) {
+    const div = document.createElement("div");
+    div.classList.add("message");
+    const p = document.createElement("p");
+    p.classList.add("meta");
+    if (message === undefined || message == null)
+        alert(`message.msg is undefined or null:   ${message}`);
+    // p.innerText = message.msg.username;
+    // p.innerHTML += `<span>${message.msg.time}</span>`;
+    p.innerHTML = `<span>${message.time.toDate()}</span> <span>${message.sender}</span>`;
+    div.appendChild(p);
+    const para = document.createElement("p");
+    para.classList.add("text");
+    para.innerText = message.message;
+    div.appendChild(para);
+    document.querySelector(".chat-messages")!.appendChild(div);
+}
 export default function uuid({ bool, room, user, userIndex, errors }: Props) {
     const router = useRouter();
     const [authUser, loading, error] = useAuthState(firebase.auth());
@@ -119,48 +150,6 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
         const soundBar = <SoundItem controls src="" />
         const soundWrap = <WrapDiv id="soundControl" children={soundBar} />;
         const canvas = <Canvas roomId={user.room} userId={user.id} userIndex={userIndex} n={room.n} m={room.m} class="w-4/5 h-4/5" id="canvas" />;
-        const chat = <>
-            <div className="chat-container">
-                <header className="chat-header" id="chat-header">
-                    <h1><i className="fas fa-smile"></i> ChompChat</h1>
-                    <h1>Sound: <div id="soundControl"></div></h1>
-                    <div className="tooltip">
-                        <button id="copyBtn">
-                            <span className="btn tooltiptext" id="myTooltip"
-                            >Invite a friend! (Copy to clipboard)</span
-                            >
-                        </button>
-                    </div>
-                    <a href="../index.html" className="btn">Leave Room</a>
-                </header>
-
-                <div className="chat-main">
-                    <div className="chat-sidebar">
-                        <h2><i className="fas fa-comments"></i> Room Name:</h2>
-                        <h3 id="room-name"></h3>
-                        <h2><i className="fas fa-users"></i> Users:</h2>
-                        <ul id="users"></ul>
-                    </div>
-                    <div className="chat-messages"></div>
-                </div>
-                <div className="chat-form-container">
-                    <form id="chat-form">
-                        <input
-                            id="msg"
-                            type="text"
-                            placeholder="Enter Message"
-                            required
-                            autoComplete="off"
-                        />
-                        <button id="submitBtn" className="btn">
-                            <i className="fas fa-paper-plane"></i> Send
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </>
-        const main = <WrapDiv class="w-screen h-screen flex-1 flex-col md:flex-row"
-            id="flexWrap" children={[canvas, chat]} />;
         const roomKeys = Object.keys(room);
         const roomValues = Object.values(room);
         const roomList = roomKeys.map((element, index) => {
@@ -170,6 +159,37 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
         console.log(`user is: ${JSON.stringify(user)}`);
         console.log(`room is: ${JSON.stringify(room)}`);
         useEffect(() => {
+            document.getElementById(`__next`)!.classList.add(`w-screen`);
+            document.getElementById(`__next`)!.classList.add(`h-screen`);
+            document.getElementById("copyBtn")!.addEventListener("click", () => {
+                execCopy(`${window.location.href.split("?")[0] as string}`);
+            });
+            document.getElementById("chat-form")!.addEventListener(`submit`, (e: Event) => {
+                e.preventDefault();
+                const msgElement = (document.getElementById("msg")!) as HTMLInputElement;
+                var msg = msgElement.value;
+                addMessage(msg, user.name, user.room);
+                msgElement.value = "";
+                msgElement.focus();
+            });
+            firebase
+                .firestore()
+                .collection(`rooms`)
+                .doc(`${user.room}`)
+                .collection(`chat`)
+                .orderBy("time", "asc")
+                .onSnapshot({ includeMetadataChanges: true }, (snapshot) => {
+                    let changes = snapshot.docChanges();
+                    console.log(`got changes in the chat collection - pending: ${snapshot.metadata.hasPendingWrites}`);
+                    changes.forEach((change) => {
+                        console.log(change.doc.data())
+                        if (change.type === "added") {
+                            let message = change.doc.data() as Message;
+                            if (message.message != "" && !snapshot.metadata.hasPendingWrites) outputMessage(message);
+                            else console.log(`didnt output the message because pending is ${snapshot.metadata.hasPendingWrites}`)
+                        }
+                    });
+                });
             const onDC = async () => {
                 alert(`please don't leave :(`);
                 await removeRoomUser(user);
@@ -189,22 +209,66 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
                     integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk="
                     crossOrigin="anonymous"
                 />
-                <link rel="stylesheet" href="/css/index2.css" />
+                {/* <link rel="stylesheet" href="/css/index2.css" /> */}
                 <link rel="stylesheet" href="/css/chat.css" />
                 <link rel="icon" href="favicon.ico" />
             </Head>
             <h1>Welcome to the NextChomp Bot Page!</h1>
 
             {soundWrap}
-            {main}
+            {/* <div className="w-screen h-screen flex-1 flex-col md:flex-row" id="flexWrap"> */}
+            <div className="mt-8 ml-8 mr-8 h-5/6 w-auto flex flex-1 flex-col md:flex-row" id="flexWrap">
+                <Canvas roomId={user.room} userId={user.id} userIndex={userIndex} n={room.n} m={room.m}
+                    class="w-3/6 " id="canvas" />
+                <span className="ml-4 mr-4"></span>
+                <>
+                    <div className="chat-container w-3/6 h-auto">
+                        <header className="chat-header" id="chat-header">
+                            <h1><i className="fas fa-smile"></i> ChompChat</h1>
+                            <h1>Sound: <div id="soundControl"></div></h1>
+                            <div className="tooltip">
+                                <button id="copyBtn">
+                                    <span className="btn text-black tooltiptext" id="myTooltip">
+                                        Invite a friend! (Copy to clipboard)</span>
+                                </button>
+                            </div>
+                            <div><a href="../index.html" className="btn text-black">Leave Room</a></div>
+                        </header>
+
+                        <div className="chat-main w-auto h-4/5">
+                            <div className="chat-sidebar">
+                                <h2><i className="fas fa-users"></i> Users:</h2>
+                                <ul id="users"></ul>
+                            </div>
+                            <div className="chat-messages"></div>
+                        </div>
+                        <div className="chat-form-container">
+                            <form id="chat-form">
+                                <input
+                                    id="msg"
+                                    type="text"
+                                    placeholder="Enter Message"
+                                    required
+                                    autoComplete="off"
+                                    className="mt-16 md:mt-auto"
+                                />
+                                <button id="submitBtn" className="btn text-black mt-16 md:mt-auto">
+                                    <i className="fas fa-paper-plane"></i> Send
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </>
+            </div>
+
             {/* <Link href={router.asPath} passHref /> */}
             <Link href={`/room/${router.query.uuid as string}`} passHref>
                 <a target="_blank" rel="noopener noreferrer">yo I am here</a>
             </Link>
 
-            {console.log(`room in client is: ${JSON.stringify(room)}`)}
+            {/* {console.log(`room in client is: ${JSON.stringify(room)}`)}
             <ul className="ml-8">{roomList}</ul>
-            <h1 className="ml-8">the game should be: {room.n}X{room.m}</h1>
+            <h1 className="ml-8">the game should be: {room.n}X{room.m}</h1> */}
 
 
 

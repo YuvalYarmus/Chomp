@@ -112,7 +112,10 @@ export default class MultGame extends Game {
           console.log(change.doc.data());
           if (change.type === "added") {
             let move = change.doc.data() as Move;
-            if (move.by != "Initial from server" && parseInt(move.by.split(" ")[1]) - 1 != this.userIndex) {
+            if (
+              move.by != "Initial from server" &&
+              parseInt(move.by.split(" ")[1]) - 1 != this.userIndex
+            ) {
               this.canPlay = !this.canPlay;
               this.turns++;
               this.globalGameState = move.move;

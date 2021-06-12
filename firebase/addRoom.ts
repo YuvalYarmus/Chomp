@@ -79,9 +79,7 @@ export default async function addRoomToFirestore(room: Room) {
         .collection(`rooms`)
         .doc(`${room.uuid}`)
         .collection(`chat`)
-        .add({
-          firstMessage
-        })
+        .add(firstMessage)
         .then(() => {
           console.log(`sent to firestorm successfully from addRoom`);
           alert("sent to firestorm successfully from addRoom");
