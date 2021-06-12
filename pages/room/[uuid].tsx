@@ -319,6 +319,8 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }: 
         const room: Room | null = await getRoom(id);
         const user: User | null = await getUser(userId);
 
+        // the server timestamp is a unix time object which can not be serialized as json
+        // therefor we have to change it so that it can be passed to the room in the props
         console.log(`room var is: ${JSON.stringify(room)}, user: ${user}`);
         room.users.forEach((user: User) => user.created = JSON.stringify(user.created.toDate()))
         user.created = JSON.stringify(user.created.toDate());
@@ -342,5 +344,6 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }: 
     } catch (err) {
         console.log(`server side props failed with: ${err}`)
         return { props: { bool: false, errors: err.message, room: null, user: null } };
-    }
+    }   
+    
 }
