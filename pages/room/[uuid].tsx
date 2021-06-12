@@ -205,12 +205,14 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
                     });
                 });
             const routeChangeStart = () => {
-                alert(`you are about to leave this site`)
+                alert(`you are about to leave this site`);
+                console.log(`about to leave site from route leave function`.toUpperCase());
             }
             const beforeunload = async () => {
                 alert(`please don't leave :(`);
+                console.log(`about to leave site from window unload function`.toUpperCase());
                 await removeRoomUser(user);
-                await removeUser(user);
+                // await removeUser(user);
             }
             router.events.on('routeChangeStart', routeChangeStart);
             window.addEventListener('beforeunload', beforeunload);
@@ -312,12 +314,14 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }: 
     try {
         const id = params?.uuid, userId = query?.userId
         init();
-        if (!id || !userId || id === undefined || userId === undefined) return { props: { bool: false } } 
+        if (!id || !userId || id === undefined || userId === undefined) return { props: { bool: false } } ;
         else console.log(`uuid is: ${id} and userId is : ${userId}`);
 
         // use onsnapshot only on the client side as it opens a socket
         const room: Room | null = await getRoom(id);
         const user: User | null = await getUser(userId);
+
+        if (room === null || user === null) return { props: { bool: false}};
 
         // the server timestamp is a unix time object which can not be serialized as json
         // therefor we have to change it so that it can be passed to the room in the props
@@ -345,5 +349,5 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }: 
         console.log(`server side props failed with: ${err}`)
         return { props: { bool: false, errors: err.message, room: null, user: null } };
     }   
-    
+
 }
