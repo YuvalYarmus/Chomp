@@ -55,7 +55,6 @@ export default function BotPage() {
             <link rel="icon" href="favicon.ico" />
         </Head>
         <h1>Welcome to the NextChomp Bot Page!</h1>
-        {soundWrap}
         {main}
     </>
 }
