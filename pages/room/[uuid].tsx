@@ -8,7 +8,7 @@ import dynamic from "next/dynamic";
 import { GetServerSideProps, GetStaticProps, InferGetServerSidePropsType } from 'next'
 import init from '../../firebase/initFirebase'
 import firebase from "firebase/app";
-import {User, Room, Chat, Message, Move} from "../../firebase/types"
+import { User, Room, Chat, Message, Move } from "../../firebase/types"
 import { useRouter } from 'next/router'
 import { useAuthState } from "react-firebase-hooks/auth"
 import addUserToUsers from "../../firebase/addUser"
@@ -69,7 +69,7 @@ function execCopy(route: string) {
     document.body.removeChild(input);
     var tooltip = document.getElementById("myTooltip")!;
     tooltip.innerHTML = "Copied: " + copyText;
-    setTimeout( () => {
+    setTimeout(() => {
         tooltip.innerHTML = "Invite a friend! (Copy to clipboard)";
     }, 1500)
 }
@@ -82,7 +82,7 @@ function outputMessage(message: Message) {
         alert(`message.msg is undefined or null:   ${message}`);
     // p.innerText = message.msg.username;
     // p.innerHTML += `<span>${message.msg.time}</span>`;
-    p.innerHTML = `<span>${message.time.toDate()}</span> <span>${message.sender}</span>`;
+    p.innerHTML = `<span>${(message.time.toDate() as Date).toLocaleTimeString()}</span></br><span>${message.sender}</span>`;
     div.appendChild(p);
     const para = document.createElement("p");
     para.classList.add("text");
@@ -91,6 +91,18 @@ function outputMessage(message: Message) {
     document.querySelector(".chat-messages")!.appendChild(div);
     div.focus();
 }
+
+function outputUsers(users: User[]) {
+    const userList = document.getElementById("users")!;
+    userList.innerHTML = "";
+    users.forEach((user: any) => {
+        // const li = <li key={user.id}>{user.name}</li> as unknown as Element;
+        const li = document.createElement("li");
+        li.innerText = user.name;
+        userList.appendChild(li);
+    });
+}
+
 export default function uuid({ bool, room, user, userIndex, errors }: Props) {
     const router = useRouter();
     const [authUser, loading, error] = useAuthState(firebase.auth());
@@ -106,7 +118,7 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
             if (authUser != null) (async () => {
                 const name = authUser?.displayName as string
                 const userUuid = uuidV4();
-                const newUser: User = { 
+                const newUser: User = {
                     id: userUuid,
                     name: name,
                     room: router.query.uuid as string
@@ -152,8 +164,9 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
 
     }
     else {
+        const [sound, setSound] = useState(true);
         console.log(`passed bool`);
-        const soundBar = <SoundItem controls src="" />
+        const soundBar = <SoundItem src="/chat.mp3" />
         const soundWrap = <WrapDiv id="soundControl" children={soundBar} />;
         const canvas = <Canvas roomId={user.room} userId={user.id} userIndex={userIndex} n={room.n} m={room.m} class="w-4/5 h-4/5" id="canvas" />;
         const roomKeys = Object.keys(room);
@@ -166,6 +179,9 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
         console.log(`room is: ${JSON.stringify(room)}`);
         useEffect(() => {
             console.log(`IN SECOND USE EFFECT ON PAGE`)
+            // adding audio for the chat
+            const chatAudio = document.createElement(`audio`);
+            chatAudio.src = "/chat.mp3";
             // making the next js div take the size of the entire screen
             document.getElementById(`__next`)!.classList.add(`w-screen`);
             document.getElementById(`__next`)!.classList.add(`h-screen`);
@@ -182,6 +198,10 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
                 msgElement.value = "";
                 msgElement.focus();
             });
+            const swapSound = () => {
+                setSound(!sound);
+            }
+            document.getElementById("soundSett")!.addEventListener(`change`, swapSound);
             // listen to changes in the room's chat subcollection
             firebase
                 .firestore()
@@ -199,33 +219,50 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
                             let message = change.doc.data() as Message;
                             // if (message.message != "" && !snapshot.metadata.hasPendingWrites) outputMessage(message);
                             // else console.log(`didnt output the message because pending is ${snapshot.metadata.hasPendingWrites}`)
-                            if (message.message != "" && message.time != null) outputMessage(message);                            
+                            if (message.message != "" && message.time != null) {
+                                outputMessage(message);
+                                chatAudio.play();
+                            }
                         }
-                        else if (change.type === "modified") outputMessage(change.doc.data() as Message);                        
+                        else if (change.type === "modified") outputMessage(change.doc.data() as Message);
+                        const chatMessages = document.querySelector(".chat-messages")!;
+                        chatMessages.scrollTop = chatMessages.scrollHeight;
                     });
+                });
+            // listen to changes in the room (in order to capture a new user joining)
+            firebase
+                .firestore()
+                .collection(`rooms`)
+                .doc(`${user.room}`)
+                .onSnapshot({ includeMetadataChanges: true }, (doc) => {
+                    const source = doc.metadata.hasPendingWrites ? "Local" : "Server";
+                    console.log(`doc was updated and pending is: ${doc.metadata.hasPendingWrites} so from ${source}`);
+                    console.table(doc.data());
+                    if (doc.data()) outputUsers((doc.data() as Room).users);
                 });
             const routeChangeStart = async () => {
                 prompt(`you are about to leave this site`);
                 console.log(`about to leave site from route leave function`.toUpperCase());
-                await removeRoomUser(user);
-                await removeUser(user);
+                // await removeRoomUser(user);
+                // await removeUser(user);
             }
             const beforeunload = async () => {
                 prompt(`please don't leave :(`);
                 console.log(`about to leave site from window unload function`.toUpperCase());
-                await removeRoomUser(user);
-                await removeUser(user);
+                // await removeRoomUser(user);
+                // await removeUser(user);
             }
             router.events.on('routeChangeStart', routeChangeStart);
             window.addEventListener('beforeunload', beforeunload);
             return () => {
                 window.removeEventListener('beforeunload', beforeunload);
+                document.getElementById("soundSett")!.removeEventListener(`change`, swapSound);
                 router.events.off('routeChangeStart', routeChangeStart);
-              };
+            };
             // const onDC = async () => {
-                // alert(`please don't leave :(`);
-                // await removeRoomUser(user);
-                // await removeUser(user);
+            // alert(`please don't leave :(`);
+            // await removeRoomUser(user);
+            // await removeUser(user);
             // }
             // window.addEventListener(`unload`, onDC);
         }, []);
@@ -257,7 +294,12 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
                     <div className="chat-container w-3/6 h-auto">
                         <header className="chat-header" id="chat-header">
                             <h1><i className="fas fa-smile"></i> ChompChat</h1>
-                            <h1>Sound: <div id="soundControl"></div></h1>
+                            <h1>Sound: <div id="soundControl">
+                                <label className="switch">
+                                    <input id="soundSett" type="checkbox" defaultChecked></input>
+                                </label>
+                                <span className="slider"></span>
+                            </div></h1>
                             <div className="tooltip">
                                 <button id="copyBtn">
                                     <span className="btn text-black tooltiptext" id="myTooltip">
@@ -316,14 +358,14 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }: 
     try {
         const id = params?.uuid, userId = query?.userId
         init();
-        if (!id || !userId || id === undefined || userId === undefined) return { props: { bool: false } } ;
+        if (!id || !userId || id === undefined || userId === undefined) return { props: { bool: false } };
         else console.log(`uuid is: ${id} and userId is : ${userId}`);
 
         // use onsnapshot only on the client side as it opens a socket
         const room: Room | null = await getRoom(id);
         const user: User | null = await getUser(userId);
 
-        if (room === null || user === null) return { props: { bool: false}};
+        if (room === null || user === null) return { props: { bool: false } };
 
         // the server timestamp is a unix time object which can not be serialized as json
         // therefor we have to change it so that it can be passed to the room in the props
@@ -350,6 +392,6 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }: 
     } catch (err) {
         console.log(`server side props failed with: ${err}`)
         return { props: { bool: false, errors: err.message, room: null, user: null } };
-    }   
+    }
 
 }
