@@ -30,7 +30,7 @@ function Load() {
             init();
             let style = `style="color:grey; padding-top:10px;"`;
             let text: string = `
-            <main class="join-main">
+            <main class="join-main text-gray-200">
             <form id="form" class="form">
             <input id="full_name" placeholder="Plese enter your name" name="full_name" required>
             <label for="n" ${style}>The amount of columns:</label>
@@ -71,7 +71,7 @@ function Load() {
                 
                 // await writeToFireStore(room, user);
                 
-                alert(`after write to firestore`);
+                // alert(`after write to firestore`);
                 console.log(`from loader: after write to firestore`);
                 router.push({
                     pathname: `/room/${roomUuid}`,

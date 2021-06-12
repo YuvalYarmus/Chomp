@@ -86,6 +86,7 @@ function outputMessage(message: Message) {
     div.appendChild(p);
     const para = document.createElement("p");
     para.classList.add("text");
+    para.classList.add("text-gray-400");
     para.innerText = message.message;
     div.appendChild(para);
     document.querySelector(".chat-messages")!.appendChild(div);
@@ -282,7 +283,7 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
                 <link rel="stylesheet" href="/css/chat.css" />
                 <link rel="icon" href="favicon.ico" />
             </Head>
-            <h1>Welcome to the NextChomp Bot Page!</h1>
+            
 
             {soundWrap}
             {/* <div className="w-screen h-screen flex-1 flex-col md:flex-row" id="flexWrap"> */}
@@ -291,7 +292,7 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
                     class="w-3/6 " id="canvas" />
                 {/* <span className="ml-4 mr-4"></span> */}
                 <>
-                    <div className="chat-container w-3/6 h-auto">
+                    <div className="chat-container w-3/6 h-auto rounded-md">
                         <header className="chat-header" id="chat-header">
                             <h1><i className="fas fa-smile"></i> ChompChat</h1>
                             <h1>Sound: <div id="soundControl">
@@ -336,9 +337,9 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
             </div>
 
             {/* <Link href={router.asPath} passHref /> */}
-            <Link href={`/room/${router.query.uuid as string}`} passHref>
+            {/* <Link href={`/room/${router.query.uuid as string}`} passHref>
                 <a target="_blank" rel="noopener noreferrer">yo I am here</a>
-            </Link>
+            </Link> */}
 
             {/* {console.log(`room in client is: ${JSON.stringify(room)}`)}
             <ul className="ml-8">{roomList}</ul>

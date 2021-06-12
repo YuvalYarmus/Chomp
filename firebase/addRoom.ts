@@ -40,7 +40,7 @@ export default async function addRoomToFirestore(room: Room) {
           time: firebase.firestore.Timestamp.now(),
         }, {merge: true})
         const firstMessage : Message = {
-          message: `chat for room ${room.uuid} created`,
+          message: `Welcome to Chomp Online`,
           time: firebase.firestore.Timestamp.now(),
           sender : 'Server'
         } 
@@ -52,7 +52,7 @@ export default async function addRoomToFirestore(room: Room) {
         .add(firstMessage)
         .then(() => {
           console.log(`sent to firestorm successfully from addRoom`);
-          alert("sent to firestorm successfully from addRoom");
+          // alert("sent to firestorm successfully from addRoom");
         });
       resolve(true);
     } catch (err) {
