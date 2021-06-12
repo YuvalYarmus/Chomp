@@ -8,23 +8,23 @@ import dynamic from "next/dynamic";
 import { GetServerSideProps, GetStaticProps, InferGetServerSidePropsType } from 'next'
 import init from '../../firebase/initFirebase'
 import firebase from "firebase/app";
-import firestore from "firebase/firestore";
-import { Game } from "../../Game";
-import { Room, User } from "../../firebase/loadWrite"
+import {User, Room, Chat, Message, Move} from "../../firebase/types"
 import { useRouter } from 'next/router'
-import addUser from "../../firebase/userWrite"
 import { useAuthState } from "react-firebase-hooks/auth"
-import { useCollection } from "react-firebase-hooks/firestore"
-import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth"
-import Auth from "../../components/authComponent"
 import addUserToUsers from "../../firebase/addUser"
 import addRoomUser from "../../firebase/addRoomUser"
 import removeRoomUser from "../../firebase/RemoveRoomUser"
 import removeUser from '../../firebase/RemoveUser'
+import Auth from "../../components/authComponent"
+import { addMessage } from "../../firebase/addMessage"
+import { getRoom } from "../../firebase/getRoom"
+import firestore from "firebase/firestore";
+import { Game } from "../../Game";
+import addUser from "../../firebase/userWrite"
+import { useCollection } from "react-firebase-hooks/firestore"
+import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth"
 import getRoomUsers from "../../firebase/getRoomUsers"
 import { getRoomMoves } from "../../firebase/getRoomMoves";
-import { addMessage, Message } from "../../firebase/addMessage"
-
 
 const { v4: uuidV4, validate: uuidValidate } = require("uuid");
 
