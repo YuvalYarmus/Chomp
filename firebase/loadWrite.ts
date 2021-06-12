@@ -2,11 +2,13 @@ import firebase from "firebase/app";
 import firestore from "firebase/firestore";
 import { Game } from "../Game";
 import init from '../firebase/initFirebase'
+import Firebase from 'firebase'
 
 export type User = {
   id: string;
   name: string;
   room: string;
+  created? : any;
 };
 
 export type Room = {
@@ -26,7 +28,7 @@ type Chat = {
 
 type Message = {
   message: string;
-  time: string;
+  time: any;
   sender: string;
 };
 
@@ -40,11 +42,13 @@ export const createGameString = (n: number, m: number): string => {
 
 export async function writeToFireStore(room: Room, user: User) {
     try {
+      user['created'] = firebase.firestore.Timestamp.now();
       await firebase.firestore().collection("users").doc(`${user.id}`).set(
         {
           id: user.id,
           name: user.name,
           room: user.room,
+          created: firebase.firestore.Timestamp.now() 
         },
         { merge: true }
       );
@@ -65,8 +69,13 @@ export async function writeToFireStore(room: Room, user: User) {
           },
           { merge: true }
         );
+        const firstMessage : Message = {
+          message: `chat for room ${room.uuid} created`,
+          time: firebase.firestore.Timestamp.now(),
+          sender : 'Server'
+        } 
         await firebase.firestore().collection(`rooms`).doc(`${room.uuid}`).collection(`chat`).add({
-            messages : []
+            firstMessage
         }).then( () => {
             console.log(`sent to firestorm successfully from write`);
             alert('sent to firestorm successfully from write');

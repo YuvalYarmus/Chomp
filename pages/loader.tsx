@@ -4,6 +4,9 @@ import { useEffect } from 'react'
 import 'tailwindcss/tailwind.css'
 import init from '../firebase/initFirebase'
 import { writeToFireStore, Room, User, createGameString } from '../firebase/loadWrite'
+import addUser from '../firebase/addUser'
+import addRoomUser from '../firebase/addRoomUser'
+import addRoom from '../firebase/addRoom'
 const { v4: uuidV4, validate: uuidValidate } = require("uuid");
 import { useRouter } from 'next/router'
 
@@ -31,9 +34,9 @@ function Load() {
             <form id="form" class="form">
             <input id="full_name" placeholder="Plese enter your name" name="full_name" required>
             <label for="n" ${style}>The amount of columns:</label>
-            <input type="number" id="n" value="6" name="n" min="2" max="8">
+            <input type="number" id="n" value="7" name="n" min="2" max="8">
             <label for="m" ${style}>The amount of rows:</label>
-            <input type="number" id="m" value="7" name="m" min="2" max="8">
+            <input type="number" id="m" value="9" name="m" min="2" max="12">
             <button type="submit" class="btn">Start the game!</button>
             </form></main>
             `;
@@ -60,10 +63,16 @@ function Load() {
                     m: m,
                     users: [user],
                 }
-                console.log(`room: ${JSON.stringify(room)}, user: ${JSON.stringify(user)}`)
-                await writeToFireStore(room, user);
-                // alert(`after write to firestore`);
-                console.log(`after write to firestore`);
+                console.log(`from loader: room: ${JSON.stringify(room)}, user: ${JSON.stringify(user)}`)
+                
+                await addRoom(room);
+                await addUser(user);
+                await addRoomUser(user);
+                
+                // await writeToFireStore(room, user);
+                
+                alert(`after write to firestore`);
+                console.log(`from loader: after write to firestore`);
                 router.push({
                     pathname: `/room/${roomUuid}`,
                     query: { name: name, userId: userUuid   },

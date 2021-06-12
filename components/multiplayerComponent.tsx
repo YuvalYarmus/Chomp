@@ -1,24 +1,23 @@
 import React, { ReactNode, useEffect, useState , useRef, Ref, MutableRefObject } from 'react'
-import { Game } from '../Game'
+import Game from '../multGame'
 
 interface Props {
   // Props
-  id?: string
+  userIndex : number,
+  roomId : string,
+  userId : string,
+  n : number, 
+  m : number
+  id?: string,
   class?: string
-  n? : number, 
-  m? : number
 }
 
 const Component: React.FC<Props> = (props) => {
   let canvasRef : HTMLCanvasElement | null = null;
   const canvasRef2 = useRef(null);
-  useEffect(() => {
+  useEffect( () => {
     // Run after mount
-    let game : Game;
-    if (props.n && props.m) game = new Game(canvasRef2.current, props.n, props.m);
-    else new Game(canvasRef2.current);
-    
-    // const game = new Game(canvasRef);
+    let game = new Game(props.userIndex, props.roomId, props.userId, canvasRef2.current, props.n, props.m);
     
     // return () => {
     //   window.removeEventListener(`resize`, game.resizeFunc);

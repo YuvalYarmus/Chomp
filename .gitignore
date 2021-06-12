@@ -33,4 +33,5 @@ yarn-error.log*
 # vercel
 .vercel
 
+# self documentation
 mission.txt

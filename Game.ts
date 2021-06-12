@@ -158,10 +158,10 @@ export class Game {
     );
     let m: number = parseInt(
       prompt("Please enter the amount of columns you want (no more than 8)") ||
-        "5"
+        "11"
     );
-    if (isNaN(n) || n > 8) n = 8;
-    if (isNaN(m) || m > 8) m = 8;
+    if (isNaN(n) || n > 10) n = 9;
+    if (isNaN(m) || m > 12) m = 12;
     this.n = n;
     this.m = m;
     this.globalGameState = this.createGameString(n, m);
@@ -390,6 +390,7 @@ export class Game {
     // console.log(`state was ${this.globalGameState} and is now ${newState}`);
     // console.log(`circle is ${c}`);
     this.globalGameState = newState;
+    return newState;
   }
 
   computeState(state: string, i: number, j: number) {

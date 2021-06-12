@@ -17,27 +17,33 @@ import { useAuthState } from "react-firebase-hooks/auth"
 import { useCollection } from "react-firebase-hooks/firestore"
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth"
 import Auth from "../../components/authComponent"
-import SignIn from "../../components/signIn"
+import addUserToUsers from "../../firebase/addUser"
+import addRoomUser from "../../firebase/addRoomUser"
+import removeRoomUser from "../../firebase/RemoveRoomUser"
+import removeUser from '../../firebase/RemoveUser'
+import getRoomUsers from "../../firebase/getRoomUsers"
+import { getRoomMoves } from "../../firebase/getRoomMoves";
+import { addMessage, Message } from "../../firebase/addMessage"
+
+
 const { v4: uuidV4, validate: uuidValidate } = require("uuid");
 
-const Canvas = dynamic(() => import("../../components/gameComponent"), {
+const Canvas = dynamic(() => import("../../components/multiplayerComponent"), {
     ssr: false,
 });
 
-
 init()
+type Props = {
+    bool: boolean, room: Room, user: User, userIndex: number, errors: string
+}
 type divProps = {
     children?: ReactNode
     id?: string
     class?: string
 }
-
 type soundProps = {
     controls?: boolean
     src?: string
-}
-type Props = {
-    bool: boolean, room: Room, user: User, errors: string
 }
 
 function WrapDiv(props: divProps) {
@@ -51,71 +57,82 @@ function SoundItem({ src, controls = false }: soundProps) {
     return <audio src={src}></audio>
 }
 
-// const sign = async () => {
-//     const name = prompt(`choose a name: `) || "John Dough"
-//     const uuid = router.query.uuid as string
-//     const user: User = {
-//         id: `${uuid}-${name}`,
-//         name: name,
-//         room: uuid
-//     }
-//     await init();
-//     await addUser(user);
-//     router.push({
-//         pathname: window.location.href.split('?')[0],
-//         query: {
-//             name: name,
-//             userId: `${uuid}-${name}`,
-//             invite: true
-//         }
-//     });
-// }
-
-export default function uuid({ bool, room, user, errors }: Props) {
+function execCopy(route: string) {
+    var input = document.createElement("input") as HTMLInputElement;
+    var copyText = route;
+    input.value = copyText;
+    document.body.appendChild(input);
+    input.select();
+    input.setSelectionRange(0, 99999);
+    document.execCommand("copy");
+    document.body.removeChild(input);
+    var tooltip = document.getElementById("myTooltip")!;
+    tooltip.innerHTML = "Copied: " + copyText;
+    setTimeout( () => {
+        tooltip.innerHTML = "Invite a friend! (Copy to clipboard)";
+    }, 1500)
+}
+function outputMessage(message: Message) {
+    const div = document.createElement("div");
+    div.classList.add("message");
+    const p = document.createElement("p");
+    p.classList.add("meta");
+    if (message === undefined || message == null)
+        alert(`message.msg is undefined or null:   ${message}`);
+    // p.innerText = message.msg.username;
+    // p.innerHTML += `<span>${message.msg.time}</span>`;
+    p.innerHTML = `<span>${message.time.toDate()}</span> <span>${message.sender}</span>`;
+    div.appendChild(p);
+    const para = document.createElement("p");
+    para.classList.add("text");
+    para.innerText = message.message;
+    div.appendChild(para);
+    document.querySelector(".chat-messages")!.appendChild(div);
+}
+export default function uuid({ bool, room, user, userIndex, errors }: Props) {
     const router = useRouter();
-    console.log(`hello there! I am in page!`)
-    console.log(`bool is: ${bool}, room: ${room}, user: ${user}, errors: ${errors}`);
     const [authUser, loading, error] = useAuthState(firebase.auth());
+    console.log(`hello there! I am in page!`)
+    console.log(`bool is: ${bool}, room: ${room}, user: ${user}, userIndex: ${userIndex}, errors: ${errors}`);
     if (!bool) {
-        const addUserr = async () => {
-            console.log(`trying to create another user in first bool if`)
-            const name = authUser?.displayName as string
-            const userUuid = uuidV4();
-            const newUser: User = {
-                id: userUuid,
-                name: name,
-                room: router.query.uuid as string
-            }
-            await addUser(newUser);
-            console.log(`after creating another user`)
-            const url = `/room/${router.query.uuid as string}?name=${name}&userId=${userUuid}`;
-            console.log(`move to url: ${url}`);
-            router.push(url);
-            // router.push({
-            //     href: `/room/${router.query.uuid as string}`,
-            //     query: {
-            //         name: name,
-            //         userId: userUuid
-            //     }
-            // })
-            // return new Promise<void>(resolve =>resolve());
-        }
-        // if (authUser) addUserr();
-        http://localhost:3000/room/57b26427-1070-45cf-bc1a-28dae53dc297
+
         console.log(`in bool statement`)
         console.log(`${router.asPath}`)
         console.log(`auth user: ${JSON.stringify(authUser)}, loading: ${JSON.stringify(loading)}`)
-        useEffect( () => {
-            console.log(`from use effect`)
-            if (authUser != null) async () => {
-                console.log(`in authUser if in useEffect`)
-                await addUserr();
-                return
-            }
-            console.log(`after the the authUser if statemnt from the useEffect: ${JSON.stringify(authUser)}`);
-            (async () => {
-                await addUserr();
-            })();
+        useEffect(() => {
+            console.log(`from use effect with: ${authUser}`)
+            if (authUser != null) (async () => {
+                const name = authUser?.displayName as string
+                const userUuid = uuidV4();
+                const newUser: User = {
+                    id: userUuid,
+                    name: name,
+                    room: router.query.uuid as string
+                }
+                console.log(`before addUserToUsers from useEffect`)
+                const answer = await addRoomUser(newUser);
+                if (answer === true) {
+                    await addUserToUsers(newUser);
+                    const url = `/room/${router.query.uuid as string}?name=${name}&userId=${userUuid}`;
+                    console.log(`move to url: ${url}`);
+                    router.push(url);
+                }
+                else {
+                    console.log(`found a user with that name already: ${name}`);
+                    alert(`a user with that name probably already exists`);
+                    const named = name.trim().replace(/\s/g, '')
+                    const url = `/room/${router.query.uuid as string}?name=${named}&userId=${answer}`;
+                    console.log(`move to url: ${url}`);
+                    router.push(url);
+                }
+                return () => {
+                    (async () => {
+                        alert(`please don't leave :(`);
+                        await removeRoomUser(newUser);
+                        await removeUser(newUser);
+                    })();
+                }
+            })()
             return
         });
         return <>
@@ -128,50 +145,61 @@ export default function uuid({ bool, room, user, errors }: Props) {
                 <img src={authUser?.photoURL as string}></img>
             </>)}
         </>
-        // return <>
-        //     <div>
-        //       <h1>My App</h1>
-        //       <p>Please sign-in:</p>
-        //       <SignIn />
-        //     </div>
-        //   </>;    
+
+
     }
     else {
         console.log(`passed bool`);
         const soundBar = <SoundItem controls src="" />
         const soundWrap = <WrapDiv id="soundControl" children={soundBar} />;
-        const canvas = <Canvas n={room.n} m={room.m} class="w-4/5 h-4/5" id="canvas" />;
-        const main = <WrapDiv class="w-screen h-screen" id="flexWrap" children={canvas} />;
-        const roomKeys = Object.keys(room)
-        const roomValues = Object.values(room)
+        const canvas = <Canvas roomId={user.room} userId={user.id} userIndex={userIndex} n={room.n} m={room.m} class="w-4/5 h-4/5" id="canvas" />;
+        const roomKeys = Object.keys(room);
+        const roomValues = Object.values(room);
         const roomList = roomKeys.map((element, index) => {
             if (element != "users") return <li key={element}>{element}: {roomValues[index]}</li>
             return <li key={element}>{element}: {roomValues[index]?.toString()}</li>
         });
         console.log(`user is: ${JSON.stringify(user)}`);
         console.log(`room is: ${JSON.stringify(room)}`);
-        useEffect( () => {
-            console.log(`from use effect 2`)
-            if (authUser) async () => {
-                console.log(`trying to create another user`)
-                const name = authUser?.displayName as string
-                const userUuid = uuidV4();
-                const newUser: User = {
-                    id: userUuid,
-                    name: name,
-                    room: router.query.uuid as string
-                }
-                await addUser(newUser);
-                console.log(`after creating another user`)
-                router.push({
-                    href: `/room/${router.query.uuid as string}`,
-                    query: {
-                        name: name,
-                        userId: userUuid
-                    }
-                })
+        useEffect(() => {
+            document.getElementById(`__next`)!.classList.add(`w-screen`);
+            document.getElementById(`__next`)!.classList.add(`h-screen`);
+            document.getElementById("copyBtn")!.addEventListener("click", () => {
+                execCopy(`${window.location.href.split("?")[0] as string}`);
+            });
+            document.getElementById("chat-form")!.addEventListener(`submit`, (e: Event) => {
+                e.preventDefault();
+                const msgElement = (document.getElementById("msg")!) as HTMLInputElement;
+                var msg = msgElement.value;
+                addMessage(msg, user.name, user.room);
+                msgElement.value = "";
+                msgElement.focus();
+            });
+            firebase
+                .firestore()
+                .collection(`rooms`)
+                .doc(`${user.room}`)
+                .collection(`chat`)
+                .orderBy("time", "asc")
+                .onSnapshot({ includeMetadataChanges: true }, (snapshot) => {
+                    let changes = snapshot.docChanges();
+                    console.log(`got changes in the chat collection - pending: ${snapshot.metadata.hasPendingWrites}`);
+                    changes.forEach((change) => {
+                        console.log(change.doc.data())
+                        if (change.type === "added") {
+                            let message = change.doc.data() as Message;
+                            if (message.message != "" && !snapshot.metadata.hasPendingWrites) outputMessage(message);
+                            else console.log(`didnt output the message because pending is ${snapshot.metadata.hasPendingWrites}`)
+                        }
+                    });
+                });
+            const onDC = async () => {
+                alert(`please don't leave :(`);
+                await removeRoomUser(user);
+                await removeUser(user);
             }
-        }, []);
+            window.addEventListener(`unload`, onDC);
+        });
         return <>
             <Head>
                 <title>SoloChomp</title>
@@ -184,21 +212,66 @@ export default function uuid({ bool, room, user, errors }: Props) {
                     integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk="
                     crossOrigin="anonymous"
                 />
-                <link rel="stylesheet" href="/css/index2.css" />
+                {/* <link rel="stylesheet" href="/css/index2.css" /> */}
+                <link rel="stylesheet" href="/css/chat.css" />
                 <link rel="icon" href="favicon.ico" />
             </Head>
             <h1>Welcome to the NextChomp Bot Page!</h1>
 
             {soundWrap}
-            {main}
+            {/* <div className="w-screen h-screen flex-1 flex-col md:flex-row" id="flexWrap"> */}
+            <div className="mt-8 ml-8 mr-8 h-5/6 w-auto flex flex-1 flex-col md:flex-row" id="flexWrap">
+                <Canvas roomId={user.room} userId={user.id} userIndex={userIndex} n={room.n} m={room.m}
+                    class="w-3/6 " id="canvas" />
+                <span className="ml-4 mr-4"></span>
+                <>
+                    <div className="chat-container w-3/6 h-auto">
+                        <header className="chat-header" id="chat-header">
+                            <h1><i className="fas fa-smile"></i> ChompChat</h1>
+                            <h1>Sound: <div id="soundControl"></div></h1>
+                            <div className="tooltip">
+                                <button id="copyBtn">
+                                    <span className="btn text-black tooltiptext" id="myTooltip">
+                                        Invite a friend! (Copy to clipboard)</span>
+                                </button>
+                            </div>
+                            <div><a href="../index.html" className="btn text-black">Leave Room</a></div>
+                        </header>
+
+                        <div className="chat-main w-auto h-4/5">
+                            <div className="chat-sidebar">
+                                <h2><i className="fas fa-users"></i> Users:</h2>
+                                <ul id="users"></ul>
+                            </div>
+                            <div className="chat-messages"></div>
+                        </div>
+                        <div className="chat-form-container">
+                            <form id="chat-form">
+                                <input
+                                    id="msg"
+                                    type="text"
+                                    placeholder="Enter Message"
+                                    required
+                                    autoComplete="off"
+                                    className="mt-16 md:mt-auto"
+                                />
+                                <button id="submitBtn" className="btn text-black mt-16 md:mt-auto">
+                                    <i className="fas fa-paper-plane"></i> Send
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </>
+            </div>
+
             {/* <Link href={router.asPath} passHref /> */}
             <Link href={`/room/${router.query.uuid as string}`} passHref>
                 <a target="_blank" rel="noopener noreferrer">yo I am here</a>
             </Link>
 
-            {console.log(`room in client is: ${JSON.stringify(room)}`)}
+            {/* {console.log(`room in client is: ${JSON.stringify(room)}`)}
             <ul className="ml-8">{roomList}</ul>
-            <h1 className="ml-8">the game should be: {room.n}X{room.m}</h1>
+            <h1 className="ml-8">the game should be: {room.n}X{room.m}</h1> */}
 
 
 
@@ -209,15 +282,7 @@ export default function uuid({ bool, room, user, errors }: Props) {
     }
 }
 
-// This function gets called at build time on server-side.
-// It won't be called on client-side, so you can even do
-// direct database queries.
 
-
-// missions: 
-// 1. create the invite setup
-// 2. listen to realtime snapshot updates
-// 3. 
 export const getServerSideProps: GetServerSideProps = async ({ params, query }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
     try {
         const id = params?.uuid, userId = query?.userId
@@ -226,14 +291,14 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }: 
             return { props: { bool: false } }
         }
         // use onsnapshot only on the client side as it opens a socket
-        const room = await firebase.firestore().collection(`rooms`).doc(`${id}`).get().then((doc) => {
+        const room: any = await firebase.firestore().collection(`rooms`).doc(`${id}`).get().then((doc) => {
             if (doc.exists) return doc.data();
             console.log(`there is no such room document: ${doc}-${doc.data()}`)
             return doc;
         }).catch((error) => {
             console.log(`error in fetching a room: ${error}`)
         });
-        const user = await firebase.firestore().collection(`users`).doc(`${userId}`).get().then((doc) => {
+        const user: any = await firebase.firestore().collection(`users`).doc(`${userId}`).get().then((doc) => {
             if (doc.exists) return doc.data();
             console.log(`there is no such user document: ${doc}-${doc.data()}`)
             return doc;
@@ -241,18 +306,21 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }: 
             console.log(`error in fetching a room: ${error}`)
         });
 
-        // const item = sampleUserData.find((data) => data.id === Number(id))
-        // By returning { props: item }, the StaticPropsDetail component
-        // will receive `item` as a prop at build time
-        // return { props: { item } }
-
-        console.log(`id: ${id}, userId: ${userId}`);
-        console.log(`room var is: ${room}, user: ${user}`);
+        console.log(`room var is: ${JSON.stringify(room)}, user: ${user}`);
+        room.users.forEach((user: User) => user.created = JSON.stringify(user.created.toDate()))
+        user.created = JSON.stringify(user.created.toDate());
+        const userIndex = (() => {
+            for (let i = 0; i < room.users.length; i++) {
+                if (room.users[i].id === user.id) return i;
+            }
+            return -1;
+        })();
         return {
             props: {
                 bool: true,
                 room: room,
                 user: user,
+                userIndex: userIndex,
                 errors: null
             }
         }
