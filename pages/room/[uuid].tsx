@@ -204,15 +204,17 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
                         else if (change.type === "modified") outputMessage(change.doc.data() as Message);                        
                     });
                 });
-            const routeChangeStart = () => {
-                alert(`you are about to leave this site`);
+            const routeChangeStart = async () => {
+                prompt(`you are about to leave this site`);
                 console.log(`about to leave site from route leave function`.toUpperCase());
+                await removeRoomUser(user);
+                await removeUser(user);
             }
             const beforeunload = async () => {
-                alert(`please don't leave :(`);
+                prompt(`please don't leave :(`);
                 console.log(`about to leave site from window unload function`.toUpperCase());
                 await removeRoomUser(user);
-                // await removeUser(user);
+                await removeUser(user);
             }
             router.events.on('routeChangeStart', routeChangeStart);
             window.addEventListener('beforeunload', beforeunload);
@@ -325,7 +327,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }: 
 
         // the server timestamp is a unix time object which can not be serialized as json
         // therefor we have to change it so that it can be passed to the room in the props
-        console.log(`room var is: ${JSON.stringify(room)}, user: ${user}`);
+        console.log(`room var is: ${JSON.stringify(room)}\nuser: ${user}`);
         room.users.forEach((user: User) => user.created = JSON.stringify(user.created.toDate()))
         user.created = JSON.stringify(user.created.toDate());
         const userIndex = (() => {
