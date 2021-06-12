@@ -16,12 +16,12 @@ export default function auth({path} : Props) {
         signInSuccessURL: `${path}`,
         signInOptions: [
             // List of OAuth providers supported.
-            {
-                provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
-                signInMethod: firebase.auth.EmailAuthProvider.EMAIL_LINK_SIGN_IN_METHOD,
-                requireDisplayName: true
+            // {
+            //     provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
+            //     signInMethod: firebase.auth.EmailAuthProvider.EMAIL_LINK_SIGN_IN_METHOD,
+            //     requireDisplayName: true
     
-            },
+            // },
             firebase.auth.GoogleAuthProvider.PROVIDER_ID,
             firebase.auth.GithubAuthProvider.PROVIDER_ID,
         ],
