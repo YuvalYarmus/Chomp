@@ -10,6 +10,8 @@ import addRoom from '../firebase/addRoom'
 const { v4: uuidV4, validate: uuidValidate } = require("uuid");
 import { useRouter } from 'next/router'
 
+init();
+
 function getURLParam(paramName: string) {
     let params = new URLSearchParams(window.location.search);
     console.log(window.location.search)
