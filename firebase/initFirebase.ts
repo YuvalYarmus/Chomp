@@ -13,12 +13,27 @@ const firebaseConfig = {
     appId: "1:785308785684:web:b8f96fd8de1619db865b01"
   };
 
+  let envConfig: { apiKey: string; authDomain: string | undefined; projectId: string | undefined; storageBucket: string | undefined; messagingSenderId: string | undefined; appId: string | undefined; } | null = null;
+  if (process.env.apiKey) {
+      envConfig = {
+        apiKey: process.env.apiKey,
+        authDomain: process.env.authDomain,
+        projectId: process.env.projectId,
+        storageBucket: process.env.storageBucket,
+        messagingSenderId: process.env.messagingSenderId,
+        appId: process.env.appId
+      };
+  }
 
 export default function initFirebase() {
     console.log(`in firebase init function`)
     if (!firebase.apps.length) {
-        firebase.initializeApp(firebaseConfig)
-        console.log('Firebase was successfully init.')
+        if (envConfig != null) {
+            console.log(`MAKING AN INIT WITH ENVIRONMENT VARIABLES`)
+            firebase.initializeApp(envConfig);
+        }
+        else firebase.initializeApp(firebaseConfig);
+        console.log('Firebase was successfully init.');
     }
 }
 
