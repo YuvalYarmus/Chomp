@@ -33,7 +33,7 @@ export default function initFirebase() {
             firebase.initializeApp(envConfig);
         }
         else firebase.initializeApp(firebaseConfig);
-        console.log('Firebase was successfully init.');
+        console.log(`Firebase was successfully init. envConfig: ${envConfig}`);
     }
 }
 
