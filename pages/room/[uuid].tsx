@@ -26,6 +26,7 @@ import { useCollection } from "react-firebase-hooks/firestore"
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth"
 import getRoomUsers from "../../firebase/getRoomUsers"
 import { getRoomMoves } from "../../firebase/getRoomMoves";
+import { redirect } from 'next/dist/next-server/server/api-utils'
 
 const { v4: uuidV4, validate: uuidValidate } = require("uuid");
 
@@ -241,6 +242,11 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
                     console.table(doc.data());
                     if (doc.data()) outputUsers((doc.data() as Room).users);
                 });
+            document.getElementById(`leaveRoom`)!.addEventListener(`click`, async () => {
+                await removeRoomUser(user);
+                await removeUser(user);
+                router.push(window.location.hostname);
+            });
             const routeChangeStart = async () => {
                 prompt(`you are about to leave this site`);
                 console.log(`about to leave site from route leave function`.toUpperCase());
@@ -307,7 +313,7 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
                                         Invite a friend! (Copy to clipboard)</span>
                                 </button>
                             </div>
-                            <div><a href="../index.html" className="btn text-black">Leave Room</a></div>
+                            <div><a id="leaveRoom" className="btn text-black">Leave Room</a></div>
                         </header>
 
                         <div className="chat-main w-auto h-4/5">
