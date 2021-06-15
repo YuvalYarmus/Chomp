@@ -9,11 +9,11 @@ type Props = {
     path: string
 }
 
-export default function auth({path} : Props) {
+export default function Auth({path} : Props) {
     const uiConfig = {
         signInFlow: 'popup',
-        signInSuccess: `${path}`,
-        signInSuccessURL: `${path}`,
+        signInSuccess: path,
+        signInSuccessURL: path,
         signInOptions: [
             // List of OAuth providers supported.
             // {
@@ -27,7 +27,7 @@ export default function auth({path} : Props) {
         ],
         // Other config options...
     }
-    console.log(`returning in auth`)
+    console.log(`returning in auth, path is: ${path}`)
     return (
         <div
             style={{
