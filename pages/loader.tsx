@@ -84,6 +84,9 @@ function Load() {
                     <button type="submit" className="btn">Start the game!</button>
                 </form>
             </main>
+            <script src="https://unpkg.com/three@0.110.0/build/three.js"></script>
+            <script src="/cube/three.min.js"></script>
+            <script src="/cube/loader2.js"></script>
         </>
     }
 }
