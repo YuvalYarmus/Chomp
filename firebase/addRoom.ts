@@ -57,6 +57,8 @@ export default async function addRoomToFirestore(room: Room) {
       resolve(true);
     } catch (err) {
       console.log(`got an error in creating a room: ${err}`);
+      console.log(`room was: `)
+      console.table(room);
       reject(false);
     }
   });

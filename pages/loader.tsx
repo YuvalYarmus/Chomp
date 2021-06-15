@@ -28,8 +28,8 @@ function Load() {
     // requesting the multiplayer
     else {
         init();
-        const [n, setN] = useState('');
-        const [m, setM] = useState('');
+        const [n, setN] = useState(7);
+        const [m, setM] = useState(9);
         const [name, setName] = useState('');
         interface Style {
             [key1: string]: any;
@@ -65,7 +65,7 @@ function Load() {
                             currTurn: 0,
                             n: parseInt(n),
                             m: parseInt(m),
-                            users: [user],
+                            users: [],
                         }
                         console.log(`from loader: room: ${JSON.stringify(room)}, user: ${JSON.stringify(user)}`)
                         await addRoom(room);
