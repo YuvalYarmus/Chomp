@@ -48,7 +48,7 @@ function Load() {
                 <link rel="stylesheet" href="/css/loader.css" />
                 <title>Chomp Online Loading Page</title>
             </Head>
-            <div className="join-container">
+            <div className="join-container mt-8 ml-4 mr-4">
                 <main className="join-main text-gray-200">
                     <form id="form" className="form" onSubmit={async (event) => {
                         event.preventDefault();
