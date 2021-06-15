@@ -48,42 +48,44 @@ function Load() {
                 <link rel="stylesheet" href="/css/loader.css" />
                 <title>Chomp Online Loading Page</title>
             </Head>
-            <main className="join-main text-gray-200">
-                <form id="form" className="form" onSubmit={async (event) => {
-                    event.preventDefault();
-                    const roomUuid = uuidV4(), userUuid = uuidV4();
-                    console.log(`--------submit triggered---------`)
-                    const user: User = {
-                        id: userUuid,
-                        name: name,
-                        room: roomUuid
-                    }
-                    const room: Room = {
-                        population: 1,
-                        uuid: roomUuid,
-                        currTurn: 0,
-                        n: parseInt(n),
-                        m: parseInt(m),
-                        users: [user],
-                    }
-                    console.log(`from loader: room: ${JSON.stringify(room)}, user: ${JSON.stringify(user)}`)
-                    await addRoom(room);
-                    await addUser(user);
-                    await addRoomUser(user);
-                    console.log(`from loader: after write to firestore`);
-                    router.push({
-                        pathname: `/room/${roomUuid}`,
-                        query: { name: name, userId: userUuid },
-                    });
-                }}>
-                    <input onChange={event => setName(event.target.value)} id="full_name" placeholder="Plese enter your name" name="full_name" required></input>
-                    <label htmlFor="n" style={style}>The amount of rows:</label>
-                    <input onChange={event => setN(event.target.value)} type="number" id="n" value="7" name="n" min="3" max="11"></input>
-                    <label htmlFor="m" style={style}>The amount of columns:</label>
-                    <input onChange={event => setM(event.target.value)} type="number" id="m" value="9" name="m" min="2" max="12"></input>
-                    <button type="submit" className="btn">Start the game!</button>
-                </form>
-            </main>
+            <div className="join-container">
+                <main className="join-main text-gray-200">
+                    <form id="form" className="form" onSubmit={async (event) => {
+                        event.preventDefault();
+                        const roomUuid = uuidV4(), userUuid = uuidV4();
+                        console.log(`--------submit triggered---------`)
+                        const user: User = {
+                            id: userUuid,
+                            name: name,
+                            room: roomUuid
+                        }
+                        const room: Room = {
+                            population: 1,
+                            uuid: roomUuid,
+                            currTurn: 0,
+                            n: parseInt(n),
+                            m: parseInt(m),
+                            users: [user],
+                        }
+                        console.log(`from loader: room: ${JSON.stringify(room)}, user: ${JSON.stringify(user)}`)
+                        await addRoom(room);
+                        await addUser(user);
+                        await addRoomUser(user);
+                        console.log(`from loader: after write to firestore`);
+                        router.push({
+                            pathname: `/room/${roomUuid}`,
+                            query: { name: name, userId: userUuid },
+                        });
+                    }}>
+                        <input onChange={event => setName(event.target.value)} id="full_name" placeholder="Plese enter your name" name="full_name" required></input>
+                        <label htmlFor="n" style={style}>The amount of rows:</label>
+                        <input onChange={event => setN(event.target.value)} type="number" id="n" value="7" name="n" min="3" max="11"></input>
+                        <label htmlFor="m" style={style}>The amount of columns:</label>
+                        <input onChange={event => setM(event.target.value)} type="number" id="m" value="9" name="m" min="2" max="12"></input>
+                        <button type="submit" className="btn">Start the game!</button>
+                    </form>
+                </main>
+            </div>
             <script src="https://unpkg.com/three@0.110.0/build/three.js"></script>
             <script src="/cube/three.min.js"></script>
             <script src="/cube/loader2.js"></script>
