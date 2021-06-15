@@ -3,9 +3,7 @@ import Image from 'next/image'
 import Head from 'next/head'
 import Link from 'next/link'
 import React, { ReactNode, useEffect, useState, useRef, Ref } from 'react'
-import 'tailwindcss/tailwind.css'
 import dynamic from "next/dynamic";
-import {Bot} from "../bot"
 
 
 const Canvas = dynamic(() => import("../components/botComponent"), {
