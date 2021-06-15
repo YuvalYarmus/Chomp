@@ -34,6 +34,9 @@ function SoundItem({ src, controls = false }: soundProps) {
 }
 
 export default function Solo() {
+    useEffect(() => {
+        document.body.style.backgroundColor = "#251f1f"
+    });
     const soundBar = <SoundItem src="" />
     const soundWrap = <WrapDiv id="soundControl" children={soundBar} />;
     const canvas = <Canvas class="w-4/5 h-4/5" id="canvas" />;
@@ -53,7 +56,7 @@ export default function Solo() {
             <link rel="stylesheet" href="/index2.css" />
             <link rel="icon" href="favicon.ico" />
         </Head>
-        <h1>Welcome to the NextChomp One Device Page!</h1>
+        <h1 className="text-gray-400">Welcome to the NextChomp One Device Page!</h1>
         {soundWrap}
         {main}
     </>

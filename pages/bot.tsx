@@ -33,6 +33,9 @@ function SoundItem({ src, controls = false }: soundProps) {
 }
 
 export default function BotPage() {
+    useEffect(() => {
+        document.body.style.backgroundColor = "#251f1f"
+    });
     const soundBar = <SoundItem src="" />
     const soundWrap = <WrapDiv id="soundControl" children={soundBar} />;
     const canvas = <Canvas class="w-4/5 h-4/5" id="canvas" />;
@@ -52,7 +55,7 @@ export default function BotPage() {
             <link rel="stylesheet" href="/index2.css" />
             <link rel="icon" href="favicon.ico" />
         </Head>
-        <h1>Welcome to the NextChomp Bot Page!</h1>
+        <h1 className="text-gray-400">Welcome to the NextChomp Bot Page!</h1>
         {main}
     </>
 }
