@@ -33,7 +33,7 @@ function SoundItem({ src, controls = false }: soundProps) {
 }
 
 export default function BotPage() {
-    const soundBar = <SoundItem controls src="" />
+    const soundBar = <SoundItem src="" />
     const soundWrap = <WrapDiv id="soundControl" children={soundBar} />;
     const canvas = <Canvas class="w-4/5 h-4/5" id="canvas" />;
     const main = <WrapDiv class="w-screen h-screen" id="flexWrap" children={canvas} />;
