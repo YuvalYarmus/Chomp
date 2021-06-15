@@ -11,11 +11,11 @@ import firebase from "firebase/app";
 import { User, Room, Chat, Message, Move } from "../../firebase/types"
 import { useRouter } from 'next/router'
 import { useAuthState } from "react-firebase-hooks/auth"
+import Auth from "../../components/authComponent"
 import addUserToUsers from "../../firebase/addUser"
 import addRoomUser from "../../firebase/addRoomUser"
 import removeRoomUser from "../../firebase/RemoveRoomUser"
 import removeUser from '../../firebase/RemoveUser'
-import Auth from "../../components/authComponent"
 import { addMessage } from "../../firebase/addMessage"
 import getRoom from "../../firebase/getRoom"
 import getUser from "../../firebase/getUser"
@@ -94,6 +94,22 @@ function outputMessage(message: Message) {
     div.focus();
 }
 
+function outputNewUserMessage(msg : string, time : any) {
+    const div = document.createElement("div");
+    div.classList.add("message");
+    const p = document.createElement("p");
+    p.classList.add("meta");
+    p.innerHTML = `<span>${time}</span>`;
+    div.appendChild(p);
+    const para = document.createElement("p");
+    para.classList.add("text");
+    para.classList.add("text-white");
+    para.innerText = msg;
+    div.appendChild(para);
+    document.querySelector(".chat-messages")!.appendChild(div);
+    div.focus();
+}
+
 function outputUsers(users: User[]) {
     const userList = document.getElementById("users")!;
     userList.innerHTML = "";
@@ -119,7 +135,8 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
             console.log(`from use effect - auth user: ${authUser}, loading: ${JSON.stringify(loading)}`);
             if (authUser != null) (async () => {
                 const name = authUser?.displayName as string
-                const userUuid = uuidV4();
+                // const userUuid = uuidV4();
+                const userUuid = authUser.uid;
                 const newUser: User = {
                     id: userUuid,
                     name: name,
@@ -136,11 +153,20 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
                     console.log(`move to url: ${url}`);
                     router.push(url);
                 }
-                else {
+                else  if (typeof answer === "string") {
                     console.log(`found a user with that name already: ${name}`);
                     alert(`a user with that name probably already exists choose a different one`);
                     firebase.auth().signOut();
                     // router.push(``)
+                }
+                else {
+                    let updatedUser = answer as User;
+                    await addUserToUsers(newUser);
+                    const named = updatedUser.name.trim().replace(/\s/g, '')
+                    const url = `/room/${router.query.uuid as string}?name=${named}&userId=${updatedUser.id}`;
+                    // const url = `/room/${router.query.uuid as string}?name=${name}&userId=${userUuid}`;
+                    console.log(`move to url: ${url}`);
+                    router.push(url);
                 }
                 return () => {
                     (async () => {
@@ -240,7 +266,12 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
                     const source = doc.metadata.hasPendingWrites ? "Local" : "Server";
                     console.log(`doc was updated and pending is: ${doc.metadata.hasPendingWrites} so from ${source}`);
                     console.table(doc.data());
-                    if (doc.data()) outputUsers((doc.data() as Room).users);
+                    if (doc.data()) {
+                        const users : User[] = (doc.data() as Room).users;
+                        outputUsers(users);
+                        outputNewUserMessage(`${users[users.length - 1].name} has joined the room!`, new Date().toLocaleTimeString())
+                        chatAudio.play();
+                    }
                 });
             // document.getElementById(`leaveRoom`)!.addEventListener(`click`, async () => {
             //     await removeRoomUser(user);
