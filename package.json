@@ -11,6 +11,8 @@
     "@react-firebase/auth": "^0.2.10",
     "@react-three/fiber": "^7.0.1",
     "firebase": "^8.6.5",
+    "firebase-admin": "^9.9.0",
+    "firebase-functions": "^3.14.1",
     "next": "10.2.3",
     "react": "^17.0.2",
     "react-dom": "17.0.2",

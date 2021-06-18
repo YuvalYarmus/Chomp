@@ -1,0 +1,28 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+  
+  	match /users/{user} {
+    	allow create: if request.auth != null;
+      allow delete: if request.auth.uid == resource.data.id;
+      allow get;
+      allow update: if false; 
+    }
+		match /rooms/{room} {
+    	allow create , update: if request.auth != null;
+      allow get;
+      allow delete: if request.auth != null &&
+      request.auth.uid in resource.data.users &&
+      !(request.auth.id in request.resource.data.users);
+    }
+    match /rooms/{room}/chat/{message} {
+    	allow read, create;
+      allow delete, update: if false;
+    }
+    match /rooms/{room}/moves/{move} {
+    	allow read;
+      allow delete, update: if false;
+      allow create: if request.auth != null;
+    }
+  }
+}
