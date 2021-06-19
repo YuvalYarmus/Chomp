@@ -8,7 +8,6 @@ export default async function addRoomUser(user: User) {
         await firebase.firestore().collection(`rooms`).doc(`${user.room}`).get()
       ).data();
       const users: [] = room.users;
-
       console.table([room, users]);
       const existsId = users.some((roomUser: User) => user.id === roomUser.id);
       const existName = users.some(
