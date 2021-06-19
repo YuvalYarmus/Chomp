@@ -122,8 +122,9 @@ function outputUsers(users: User[]) {
 }
 
 export default function uuid({ bool, room, user, userIndex, errors }: Props) {
-    const router = useRouter();
+	const router = useRouter();
     const [authUser, loading, error] = useAuthState(firebase.auth());
+	const [sound, setSound] = useState(true);
     console.log(`hello there! I am in page!`)
     console.log(`bool is: ${bool}, room: ${room}, user: ${user}, userIndex: ${userIndex}, errors: ${errors}`);
     if (!bool) {
@@ -192,7 +193,6 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
 
     }
     else {
-        const [sound, setSound] = useState(true);
         console.log(`passed bool`);
         const soundBar = <SoundItem src="/chat.mp3" />
         const soundWrap = <WrapDiv id="soundControl" children={soundBar} />;
@@ -411,6 +411,7 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }: 
         // the server timestamp is a unix time object which can not be serialized as json
         // therefor we have to change it so that it can be passed to the room in the props
         console.log(`room var is: ${JSON.stringify(room)}\nuser: ${user}`);
+        room.created = JSON.stringify(room.created.toDate());
         room.users.forEach((user: User) => user.created = JSON.stringify(user.created.toDate()))
         user.created = JSON.stringify(user.created.toDate());
         const userIndex = (() => {

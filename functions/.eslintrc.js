@@ -26,5 +26,7 @@ module.exports = {
   ],
   rules: {
     quotes: ["error", "double"],
+    indent: [2, "tab"],
+    "no-tabs": 0,
   },
 };

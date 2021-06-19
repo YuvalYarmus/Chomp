@@ -15,7 +15,8 @@ export default async function removeUser(user: User) {
       });
     } catch (e) {
       console.log(`got an error trying to remove a user from users :${e}`);
-      return new Promise<void>((reject) => reject());
+	  reject(e);
+	  //   return new Promise<void>((reject) => reject());
     }
   });
 

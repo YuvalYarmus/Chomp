@@ -25,6 +25,7 @@ export default async function addRoomToFirestore(room: Room) {
             n: room.n,
             m: room.m,
             // currTurn: 0,
+            created : firebase.firestore.FieldValue.serverTimestamp(),
           },
           { merge: true }
         );
