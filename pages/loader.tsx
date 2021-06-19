@@ -1,4 +1,3 @@
-import Link from 'next/link'
 import Head from 'next/head'
 import 'tailwindcss/tailwind.css'
 import init from '../firebase/initFirebase'
@@ -6,15 +5,16 @@ import { Room, User } from "../firebase/types"
 import addUser from '../firebase/addUser'
 import addRoomUser from '../firebase/addRoomUser'
 import addRoom from '../firebase/addRoom'
-const { v4: uuidV4, validate: uuidValidate } = require("uuid");
 import { useRouter } from 'next/router'
-import React, { ReactNode, useEffect, useState, useRef, Ref } from 'react'
+import React, { useState } from 'react'
 import { useAuthState } from "react-firebase-hooks/auth"
 import Auth from "../components/authComponent"
 import firebase from 'firebase'
 import CubeComponenet from "../components/cube"
+import { v4 as uuidV4, validate as uuidValidate } from "uuid"
 
 function Load() {
+	init();
     const router = useRouter();
     // if we got no param
     if (router.query.hopping === null || router.query.hopping === "") router.push("/");
@@ -29,7 +29,6 @@ function Load() {
         const [m, setM] = useState(9);
         
         // const [name, setName] = useState('');
-        init();
         if (authUser != null) {
             const name = authUser.displayName as string;
             interface Style {
