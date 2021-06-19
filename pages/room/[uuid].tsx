@@ -202,37 +202,75 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
 					if (doc.data()) {
 						const newUsers: User[] = (doc.data() as Room).users;
 						if (newUsers) {
-							const joinedUsers = newUsers.filter(
-								(newUser) => !users.includes(newUser)
-							);
-							const leavingUsers = users.filter(
-								(user) => !newUsers.includes(user)
-							);
+							// const joinedUsers = newUsers.filter(
+							// 	(newUser) => !users.includes(newUser)
+							// );
+							// const leavingUsers = users.filter(
+							// 	(user) => !newUsers.includes(user)
+							// );
 
-							for (const user of joinedUsers) {
-								setMessages((oldMessages) => [
-									...oldMessages,
-									{
-										message: `${user.name} joined the room!`,
-										sender: "Server",
-										time: new Date().toLocaleTimeString(),
-									} as Message,
-								]);
-							}
+							// for (const user of joinedUsers) {
+							// 	setMessages((oldMessages) => [
+							// 		...oldMessages,
+							// 		{
+							// 			message: `${user.name} joined the room!`,
+							// 			sender: "Server",
+							// 			time: new Date().toLocaleTimeString(),
+							// 		} as Message,
+							// 	]);
+							// }
 
-							for (const user of leavingUsers) {
-								setMessages((oldMessages) => [
-									...oldMessages,
-									{
-										message: `${user.name} left the room.`,
-										sender: "Server",
-										time: new Date().toLocaleTimeString(),
-									} as Message,
-								]);
-							}
+							// for (const user of leavingUsers) {
+							// 	setMessages((oldMessages) => [
+							// 		...oldMessages,
+							// 		{
+							// 			message: `${user.name} left the room.`,
+							// 			sender: "Server",
+							// 			time: new Date().toLocaleTimeString(),
+							// 		} as Message,
+							// 	]);
+							// }
 
-							chatAudioRef.current!.play();
-							setUsers(newUsers);
+							// chatAudioRef.current!.play();
+							// setUsers(newUsers);
+							setUsers((oldUsers) => {
+								const joinedUsers = newUsers.filter(
+									(newUser) => !oldUsers.map(user => user.id).includes(newUser.id)
+								);
+								const leavingUsers = oldUsers.filter(
+									(user) => !newUsers.map(user => user.id).includes(user.id)
+								);
+								console.log(`\nnewUsers:`);
+								console.table(newUsers);
+								console.log(`\noldUsers:`);
+								console.table(oldUsers);
+								console.log(`\njoinedUsers:`);
+								console.table(joinedUsers);
+								console.log(`\nleavingUsers`);
+								console.table(leavingUsers);
+								for (const user of joinedUsers) {
+									setMessages((oldMessages) => [
+										...oldMessages,
+										{
+											message: `${user.name} joined the room!`,
+											sender: "Server",
+											time: new Date().toLocaleTimeString(),
+										} as Message,
+									]);
+								}
+								for (const user of leavingUsers) {
+									setMessages((oldMessages) => [
+										...oldMessages,
+										{
+											message: `${user.name} left the room.`,
+											sender: "Server",
+											time: new Date().toLocaleTimeString(),
+										} as Message,
+									]);
+								}
+								chatAudioRef.current!.play();
+								return newUsers;
+							})
 						}
 					}
 				});
