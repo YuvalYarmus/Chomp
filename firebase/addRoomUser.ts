@@ -1,5 +1,5 @@
 import firebase from "firebase/app";
-import { User, Room, Chat, Message, Move } from "./types";
+import { User } from "./types";
 
 export default async function addRoomUser(user: User) {
   return new Promise<string | boolean | User>(async (resolve, reject) => {

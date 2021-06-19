@@ -1,6 +1,5 @@
 import Head from "next/head";
-import React, { ReactNode, useEffect, useState, useRef } from "react";
-import "tailwindcss/tailwind.css";
+import React, { useEffect, useState, useRef } from "react";
 import dynamic from "next/dynamic";
 import { GetServerSideProps, InferGetServerSidePropsType } from "next";
 import init from "../../firebase/initFirebase";
@@ -260,20 +259,7 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
       <>
         <Head>
           <title>SoloChomp</title>
-          <meta charSet="UTF-8" />
-          <meta
-            name="viewport"
-            content="width=device-width, initial-scale=1.0"
-          />
-          <meta httpEquiv="X-UA-Compatible" content="ie=edge" />
-          <link
-            rel="stylesheet"
-            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.12.1/css/all.min.css"
-            integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk="
-            crossOrigin="anonymous"
-          />
           <link rel="stylesheet" href="/css/chat.css" />
-          <link rel="icon" href="favicon.ico" />
         </Head>
 
         <div id="soundControl">
