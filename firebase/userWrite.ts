@@ -1,5 +1,4 @@
 import firebase from "firebase/app";
-import init from "./initFirebase";
 import { User } from "./types"
 
 // export type User = {
@@ -11,7 +10,6 @@ import { User } from "./types"
 
 export default async function addUserToFireStore(user: User) {
   try {
-    init();
     user["created"] = firebase.firestore.Timestamp.now();
     console.log(`user is now in addUser as : ${JSON.stringify(user)}`);
     await firebase

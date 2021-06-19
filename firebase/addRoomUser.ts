@@ -1,11 +1,9 @@
 import firebase from "firebase/app";
-import init from "../firebase/initFirebase";
 import { User, Room, Chat, Message, Move } from "./types";
 
 export default async function addRoomUser(user: User) {
   return new Promise<string | boolean | User>(async (resolve, reject) => {
     try {
-      init();
       const room: any = (
         await firebase.firestore().collection(`rooms`).doc(`${user.room}`).get()
       ).data();

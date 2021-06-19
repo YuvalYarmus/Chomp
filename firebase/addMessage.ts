@@ -7,7 +7,6 @@ export async function addMessage(message: string, sender: string, uuid: string) 
     try {
       if (message === "") resolve(false);
       else { 
-        init();
         const messageObj : Message = {
             message: message,
             sender: sender,

@@ -6,7 +6,6 @@ import {User, Room, Chat, Message , Move} from "./types"
 export async function getRoomMoves(uuid: string) {
   return new Promise<any[]>(async (resolve, reject) => {
     try {
-      init();
       let moves: Move[] = [];
       await firebase
       .firestore()

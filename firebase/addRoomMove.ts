@@ -1,10 +1,8 @@
 import firebase from "firebase/app";
-import init from "../firebase/initFirebase";
 
 export default async function addRoomMove(move: string, uuid: string, player : string) {
   return new Promise<boolean>(async (resolve, reject) => {
     try {
-      init();
       const moveId = move = ""? "game over" : move;
       await firebase
         .firestore()

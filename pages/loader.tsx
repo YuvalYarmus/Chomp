@@ -13,9 +13,6 @@ import { useAuthState } from "react-firebase-hooks/auth"
 import Auth from "../components/authComponent"
 import firebase from 'firebase'
 import CubeComponenet from "../components/cube"
-init();
-
-
 
 function Load() {
     const router = useRouter();
