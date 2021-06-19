@@ -1,18 +1,14 @@
-import styles from "../styles/Home.module.css";
-import Image from "next/image";
 import Head from "next/head";
-import Link from "next/link";
-import React, { ReactNode, useEffect, useState, useRef, Ref } from "react";
+import React, { ReactNode, useEffect, useState, useRef } from "react";
 import "tailwindcss/tailwind.css";
 import dynamic from "next/dynamic";
 import {
 	GetServerSideProps,
-	GetStaticProps,
 	InferGetServerSidePropsType,
 } from "next";
 import init from "../../firebase/initFirebase";
 import firebase from "firebase/app";
-import { User, Room, Chat, Message, Move } from "../../firebase/types";
+import { User, Room, Message } from "../../firebase/types";
 import { useRouter } from "next/router";
 import { useAuthState } from "react-firebase-hooks/auth";
 import Auth from "../../components/authComponent";
@@ -23,16 +19,6 @@ import removeUser from "../../firebase/RemoveUser";
 import { addMessage } from "../../firebase/addMessage";
 import getRoom from "../../firebase/getRoom";
 import getUser from "../../firebase/getUser";
-import firestore from "firebase/firestore";
-import { Game } from "../../Game";
-import addUser from "../../firebase/userWrite";
-import { useCollection } from "react-firebase-hooks/firestore";
-import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
-import getRoomUsers from "../../firebase/getRoomUsers";
-import { getRoomMoves } from "../../firebase/getRoomMoves";
-import { redirect } from "next/dist/next-server/server/api-utils";
-
-const { v4: uuidV4, validate: uuidValidate } = require("uuid");
 
 const Canvas = dynamic(() => import("../../components/multiplayerComponent"), {
 	ssr: false,
@@ -45,33 +31,7 @@ type Props = {
 	userIndex: number;
 	errors: string;
 };
-type divProps = {
-	children?: ReactNode;
-	id?: string;
-	class?: string;
-};
-type soundProps = {
-	controls?: boolean;
-	src?: string;
-};
 
-function WrapDiv(props: divProps) {
-	return (
-		<div id={props.id} className={props.class}>
-			{props.children}
-		</div>
-	);
-}
-
-function SoundItem({ src, controls = false }: soundProps) {
-	if (controls)
-		return (
-			<audio controls>
-				<source src={src} type="audio/ogg" />
-			</audio>
-		);
-	return <audio src={src}></audio>;
-}
 
 function execCopy(route: string) {
 	var input = document.createElement("input") as HTMLInputElement;
@@ -82,11 +42,6 @@ function execCopy(route: string) {
 	input.setSelectionRange(0, 99999);
 	document.execCommand("copy");
 	document.body.removeChild(input);
-	//   var tooltip = document.getElementById("myTooltip")!;
-	//   tooltip.innerHTML = "Copied: " + copyText;
-	//   setTimeout(() => {
-	//     tooltip.innerHTML = "Invite a friend! (Copy to clipboard)";
-	//   }, 1500);
 }
 
 export default function uuid({ bool, room, user, userIndex, errors }: Props) {
@@ -120,7 +75,6 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
 			if (authUser != null)
 				(async () => {
 					const name = authUser?.displayName as string;
-					// const userUuid = uuidV4();
 					const userUuid = authUser.uid;
 					const newUser: User = {
 						id: userUuid,
@@ -135,7 +89,6 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
 						const named = name.trim().replace(/\s/g, "");
 						const url = `/room/${router.query.uuid as string
 							}?name=${named}&userId=${newUser.id}`;
-						// const url = `/room/${router.query.uuid as string}?name=${name}&userId=${userUuid}`;
 						console.log(`move to url: ${url}`);
 						router.push(url);
 					} else if (typeof answer === "string") {
@@ -144,14 +97,12 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
 							`a user with that name probably already exists choose a different one`
 						);
 						firebase.auth().signOut();
-						// router.push(``)
 					} else {
 						let updatedUser = answer as User;
 						await addUserToUsers(newUser);
 						const named = updatedUser.name.trim().replace(/\s/g, "");
 						const url = `/room/${router.query.uuid as string
 							}?name=${named}&userId=${updatedUser.id}`;
-						// const url = `/room/${router.query.uuid as string}?name=${name}&userId=${userUuid}`;
 						console.log(`move to url: ${url}`);
 						router.push(url);
 					}
@@ -185,19 +136,6 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
 		);
 	} else {
 		console.log(`passed bool`);
-		// const soundBar = <SoundItem src="/chat.mp3" />;
-		// const soundWrap = <WrapDiv id="soundControl" children={soundBar} />;
-		// const canvas = (
-		//   <Canvas
-		//     roomId={user.room}
-		//     userId={user.id}
-		//     userIndex={userIndex}
-		//     n={room.n}
-		//     m={room.m}
-		//     class="w-4/5 h-4/5"
-		//     id="canvas"
-		//   />
-		// );
 		const roomKeys = Object.keys(room);
 		const roomValues = Object.values(room);
 		const roomList = roomKeys.map((element, index) => {
@@ -217,27 +155,9 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
 		console.log(`room is: ${JSON.stringify(room)}`);
 		useEffect(() => {
 			console.log(`IN SECOND USE EFFECT ON PAGE`);
-			// // adding audio for the chat
-			// const chatAudio = document.createElement(`audio`);
-			// chatAudio.src = "/chat.mp3";
 			// making the next js div take the size of the entire screen
 			document.getElementById(`__next`)!.classList.add(`w-screen`);
 			document.getElementById(`__next`)!.classList.add(`h-screen`);
-			// adding the copy button functionality
-			//   document.getElementById("copyBtn")!.addEventListener("click", () => {
-			//     execCopy(`${window.location.href.split("?")[0] as string}`);
-			//     setDidCopy(true);
-			//     setTimeout(() => {
-			//       setDidCopy(false);
-			//     }, 1500);
-			//   });
-			// adding the send button functionality
-			//   const swapSound = () => {
-			//     setSound(!sound);
-			//   };
-			//   document
-			//     .getElementById("soundSett")!
-			//     .addEventListener(`change`, swapSound);
 
 			// listen to changes in the room's chat subcollection
 			firebase
@@ -256,8 +176,6 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
 						console.log(change.doc.data());
 						const message = change.doc.data() as Message;
 						if (change.type === "added") {
-							//   if (message.message != "" && !snapshot.metadata.hasPendingWrites) outputMessage(message);
-							//   else console.log(`didnt output the message because pending is ${snapshot.metadata.hasPendingWrites}`)
 							if (message.message != "" && message.time != null) {
 								setMessages(oldMessages => [...oldMessages, message]);
 								chatAudioRef.current!.play();
@@ -318,40 +236,6 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
 						}
 					}
 				});
-			// document.getElementById(`leaveRoom`)!.addEventListener(`click`, async () => {
-			//     await removeRoomUser(user);
-			//     await removeUser(user);
-			//     router.push("/");
-			// });
-			const routeChangeStart = async () => {
-				prompt(`you are about to leave this site`);
-				console.log(
-					`about to leave site from route leave function`.toUpperCase()
-				);
-				// await removeRoomUser(user);
-				// await removeUser(user);
-			};
-			const beforeunload = async () => {
-				prompt(`please don't leave :(`);
-				console.log(
-					`about to leave site from window unload function`.toUpperCase()
-				);
-				// await removeRoomUser(user);
-				// await removeUser(user);
-			};
-			// router.events.on('routeChangeStart', routeChangeStart);
-			// window.addEventListener('beforeunload', beforeunload);
-			// return () => {
-			//     window.removeEventListener('beforeunload', beforeunload);
-			//     document.getElementById("soundSett")!.removeEventListener(`change`, swapSound);
-			//     router.events.off('routeChangeStart', routeChangeStart);
-			// };
-			// const onDC = async () => {
-			// alert(`please don't leave :(`);
-			// await removeRoomUser(user);
-			// await removeUser(user);
-			// }
-			// window.addEventListener(`unload`, onDC);
 		}, []);
 
 		return (
@@ -370,16 +254,13 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
 						integrity="sha256-mmgLkCYLUQbXn0B1SRqzHar6dCnv9oZFPEC1g1cwlkk="
 						crossOrigin="anonymous"
 					/>
-					{/* <link rel="stylesheet" href="/css/index2.css" /> */}
 					<link rel="stylesheet" href="/css/chat.css" />
 					<link rel="icon" href="favicon.ico" />
 				</Head>
 
 				<div id="soundControl">
-					{/* <SoundItem src="/chat.mp3" /> */}
-                    <audio src="/chat.mp3" muted={!sound} ref={chatAudioRef} />
+					<audio src="/chat.mp3" muted={!sound} ref={chatAudioRef} />
 				</div>
-				{/* <div className="w-screen h-screen flex-1 flex-col md:flex-row" id="flexWrap"> */}
 				<div
 					className="mt-8 ml-8 mr-8 h-5/6 w-auto flex flex-1 flex-col md:flex-row"
 					id="flexWrap"
@@ -393,7 +274,6 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
 						class="w-3/6 "
 						id="canvas"
 					/>
-					{/* <span className="ml-4 mr-4"></span> */}
 					<>
 						<div className="chat-container w-3/6 h-auto rounded-md">
 							<header className="chat-header" id="chat-header">
@@ -410,9 +290,9 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
 												defaultChecked
 												onChange={() => {
 													console.log(`sound state is now: ${sound}`);
-                                                    setSound(prevSound => !prevSound);
+													setSound(prevSound => !prevSound);
 													console.log(`soundState after change is: ${sound}`);
-                                                }}
+												}}
 											></input>
 										</label>
 										<span className="slider"></span>
@@ -510,15 +390,6 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
 						</div>
 					</>
 				</div>
-
-				{/* <Link href={router.asPath} passHref /> */}
-				{/* <Link href={`/room/${router.query.uuid as string}`} passHref>
-                <a target="_blank" rel="noopener noreferrer">yo I am here</a>
-            </Link> */}
-
-				{/* {console.log(`room in client is: ${JSON.stringify(room)}`)}
-            <ul className="ml-8">{roomList}</ul>
-            <h1 className="ml-8">the game should be: {room.n}X{room.m}</h1> */}
 			</>
 		);
 	}
