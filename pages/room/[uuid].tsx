@@ -225,14 +225,7 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
                 const leavingUsers = oldUsers.filter(
                   (user) => !newUsersIds.includes(user.id)
                 );
-                console.log(`\nnewUsers:`);
-                console.table(newUsers);
-                console.log(`\noldUsers:`);
-                console.table(oldUsers);
-                console.log(`\njoinedUsers:`);
-                console.table(joinedUsers);
-                console.log(`\nleavingUsers`);
-                console.table(leavingUsers);
+
                 for (const user of joinedUsers) {
                   setMessages((oldMessages) => [
                     ...oldMessages,
@@ -243,6 +236,7 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
                     } as Message,
                   ]);
                 }
+
                 for (const user of leavingUsers) {
                   setMessages((oldMessages) => [
                     ...oldMessages,
@@ -254,9 +248,9 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
                   ]);
                 }
                 chatAudioRef.current!.play();
+
                 return newUsers;
               });
-			  
             }
           }
         });
@@ -312,11 +306,7 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
                         id="soundSett"
                         type="checkbox"
                         defaultChecked
-                        onChange={() => {
-                          console.log(`sound state is now: ${sound}`);
-                          setSound((prevSound) => !prevSound);
-                          console.log(`soundState after change is: ${sound}`);
-                        }}
+                        onChange={() => setSound((prevSound) => !prevSound)}
                       ></input>
                     </label>
                     <span className="slider"></span>
