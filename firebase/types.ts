@@ -15,6 +15,7 @@ export type Room = {
   currTurn: number;
   chat?: Chat;
   created? : any;
+  isNew? : boolean;
 };
 
 export type Chat = {

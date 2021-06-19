@@ -1,15 +1,13 @@
-import * as functions from "firebase-functions";
-import { Change, EventContext } from "firebase-functions";
-import { QueryDocumentSnapshot } from "firebase-functions/lib/providers/firestore";
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const functions = require("firebase-functions");
 // import deleteUsers from "../../firebase/deleteUsers";
 // import { Room } from "../../firebase/types";
 // import firebase from "firebase/app";
 // import { DataSnapshot } from "firebase-functions/lib/providers/database";
-
 // import { DataSnapshot } from "firebase-functions/lib/providers/database";
 // import { Context } from "react";
 // import * as admin from "firebase-admin";
-
 // // Start writing Firebase Functions
 // // https://firebase.google.com/docs/functions/typescript
 //
@@ -17,12 +15,9 @@ import { QueryDocumentSnapshot } from "firebase-functions/lib/providers/firestor
 //   functions.logger.info("Hello logs!", {structuredData: true});
 //   response.send("Hello from Firebase!");
 // });
-
 //   .onUpdate((snapshot: QueryDocumentSnapshot, context: EventContext) => {
 // .onWrite((snapshot: QueryDocumentSnapshot, context: EventContext`) => {
-
 // (snapshot: Change<QueryDocumentSnapshot>, context: EventContext)
-
 // exports.deleteDBRooms = functions.firestore
 //   .document("rooms/{roomId}")
 //   .onUpdate((snapshot: Change<QueryDocumentSnapshot>, context: EventContext) => {
@@ -33,7 +28,6 @@ import { QueryDocumentSnapshot } from "firebase-functions/lib/providers/firestor
 // 	// const data = change.doc.data();
 // 	// console.log("data is:")
 // 	// console.table(data);
-
 // 	// const ref = snapshot.ref;
 //     // const data = snapshot.data();
 //     // console.log("data in cloud functions is:");
@@ -51,7 +45,6 @@ import { QueryDocumentSnapshot } from "firebase-functions/lib/providers/firestor
 //     const uppercase = original.toUpperCase();
 //     return snapshot.ref.set({ uppercase }, { merge: true });
 //   });
-
 // exports.deleteOldUsers = functions.database
 //   .ref("users/{userId}")
 //   .onWrite((change : Change<DataSnapshot>, context : EventContext) => {
@@ -70,17 +63,14 @@ import { QueryDocumentSnapshot } from "firebase-functions/lib/providers/firestor
 //       return ref!.update(updates);
 //     });
 //   });
-
 // exports.scheduledFunction = functions.pubsub
 //   //   .schedule("every 2 minutes")
 //   .schedule("every 2 minutes")
 //   .onRun(async (context) => {
 //     console.log("This will be run every 2 minutes!");
 //     functions.logger.log("this is running every 2 minutes");
-
 //     // firebase script to delete all users
 //     await deleteUsers();
-
 //     // return new Promise(async (resolve, reject) => {
 //     //   try {
 //     //     // get all docs in users
@@ -109,27 +99,26 @@ import { QueryDocumentSnapshot } from "firebase-functions/lib/providers/firestor
 //     // });
 //     return null;
 //   });
-
 exports.clearRoom = functions.firestore
-  .document("rooms/{roomId}")
-  .onUpdate(
-    (snapshot: Change<QueryDocumentSnapshot>, context: EventContext) => {
-      // Get an object representing the document prior to deletion
-      // e.g. {'name': 'Marie', 'age': 66}
-      // perform desired operations ...
-      try {
+    .document("rooms/{roomId}")
+    .onUpdate((snapshot, context) => {
+    // Get an object representing the document prior to deletion
+    // e.g. {'name': 'Marie', 'age': 66}
+    // perform desired operations ...
+    try {
         const room = snapshot.after.ref;
         const roomData = snapshot.after.data();
-        const usersAfter: any[] | undefined = roomData.users;;
-
-        if ((!usersAfter || usersAfter.length === 0) && !roomData.isNew 
-		&& !context.params.isNew) {
-          room.delete();
+        const usersAfter = roomData.users;
+        ;
+        if ((!usersAfter || usersAfter.length === 0) && !roomData.isNew
+            && !context.params.isNew) {
+            room.delete();
         }
-      } catch (e) {
+    }
+    catch (e) {
         console.log("failed to clear room:");
         console.log(e);
-      }
-      return null;
     }
-  );
+    return null;
+});
+//# sourceMappingURL=index.js.map

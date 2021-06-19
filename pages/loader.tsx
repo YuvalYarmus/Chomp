@@ -66,12 +66,13 @@ function Load() {
                                     room: roomUuid
                                 }
                                 const room: Room = {
-                                    population: 1,
+                                    population: 0,
                                     uuid: roomUuid,
                                     currTurn: 0,
                                     n: n,
                                     m: m,
                                     users: [],
+                                    isNew: true
                                 }
                                 console.log(`from loader: room: ${JSON.stringify(room)}, user: ${JSON.stringify(user)}`)
                                 await addRoom(room);

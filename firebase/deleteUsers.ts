@@ -1,5 +1,5 @@
 import firebase from "firebase/app";
-import {User, Room, Chat, Message, Move} from "./types"
+// import {User, Room, Chat, Message, Move} from "./types"
 // import firestore from "firebase/firestore";
 // let batch = firestore.batch();
 

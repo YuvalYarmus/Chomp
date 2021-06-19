@@ -18,12 +18,8 @@ export default async function addRoomToFirestore(room: Room) {
         .doc(`${room.uuid}`)
         .set(
           {
-            population: 0,
-            uuid: room.uuid,
+            ...room,
             // moves: [createGameString(room.n, room.m)],
-            users: [],
-            n: room.n,
-            m: room.m,
             // currTurn: 0,
             created : firebase.firestore.FieldValue.serverTimestamp(),
           },

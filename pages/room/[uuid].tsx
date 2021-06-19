@@ -154,7 +154,7 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
                     console.log(`move to url: ${url}`);
                     router.push(url);
                 }
-                else  if (typeof answer === "string") {
+                else if (typeof answer === "string") {
                     console.log(`found a user with that name already: ${name}`);
                     alert(`a user with that name probably already exists choose a different one`);
                     firebase.auth().signOut();
@@ -268,9 +268,11 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
                     console.table(doc.data());
                     if (doc.data()) {
                         const users : User[] = (doc.data() as Room).users;
-                        outputUsers(users);
-                        outputNewUserMessage(`${users[users.length - 1].name} has joined the room!`, new Date().toLocaleTimeString())
-                        chatAudio.play();
+						if (users) {
+							outputUsers(users);
+							outputNewUserMessage(`${users[users.length - 1].name} is in the room!`, new Date().toLocaleTimeString())
+							chatAudio.play();
+						}
                     }
                 });
             // document.getElementById(`leaveRoom`)!.addEventListener(`click`, async () => {
@@ -399,14 +401,14 @@ export const getServerSideProps: GetServerSideProps = async ({ params, query }: 
     try {
         const id = params?.uuid, userId = query?.userId
         init();
-        if (!id || !userId || id === undefined || userId === undefined) return { props: { bool: false } };
+        if (!id || !userId) return { props: { bool: false } };
         else console.log(`uuid is: ${id} and userId is : ${userId}`);
 
         // use onsnapshot only on the client side as it opens a socket
         const room: Room | null = await getRoom(id);
         const user: User | null = await getUser(userId);
 
-        if (room === null || user === null) return { props: { bool: false } };
+        if (!room || !user) return { props: { bool: false } };
 
         // the server timestamp is a unix time object which can not be serialized as json
         // therefor we have to change it so that it can be passed to the room in the props
