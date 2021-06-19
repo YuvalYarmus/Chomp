@@ -1,13 +1,13 @@
-// import * as functions from "firebase-functions";
-// import { Change, EventContext } from "firebase-functions";
-// import {
-//   QueryDocumentSnapshot,
-//   DocumentSnapshot,
-// } from "firebase-functions/lib/providers/firestore";
-// import { Room } from "../../firebase/types";
-// import deleteUsers from "../../firebase/deleteUsers";
-// import firebase from "firebase/app";
-// import { DataSnapshot } from "firebase-functions/lib/providers/database";
+import * as functions from "firebase-functions";
+import { Change, EventContext } from "firebase-functions";
+import {
+  QueryDocumentSnapshot,
+  DocumentSnapshot,
+} from "firebase-functions/lib/providers/firestore";
+import { Room } from "../../firebase/types";
+import deleteUsers from "../../firebase/deleteUsers";
+import firebase from "firebase/app";
+import { DataSnapshot } from "firebase-functions/lib/providers/database";
 
 // import { DataSnapshot } from "firebase-functions/lib/providers/database";
 // import { Context } from "react";
@@ -113,3 +113,16 @@
 //     return null;
 //   });
 
+exports.clearRoom = functions.firestore
+  .document("rooms/{roomId}")
+  .onUpdate((snapshot: Change<QueryDocumentSnapshot>, context: EventContext) => {
+    // Get an object representing the document prior to deletion
+    // e.g. {'name': 'Marie', 'age': 66}
+	// perform desired operations ...
+    const room = snapshot.after.ref	;
+	const usersAfter = context.params.users;
+	if (usersAfter === null || usersAfter.length === 0) {
+		room.delete();
+	}
+	return null;
+  });
