@@ -66,7 +66,8 @@ export default class MultGame extends Game {
           this.updateMove();
           this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
           console.log("THE GAME HAS ENDED");
-          setTimeout(() => this.promptGameState.bind(this)(), 300);
+          //   setTimeout(() => this.promptGameState.bind(this)(), 300);
+          this.promptGameState.bind(this)();
         } else {
           this.canPlay = !this.canPlay;
           this.turns++;
