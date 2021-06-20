@@ -1,12 +1,12 @@
-import Head from "next/head";
 import React, { useEffect, useState, useRef } from "react";
+import Head from "next/head";
 import dynamic from "next/dynamic";
-import { GetServerSideProps, InferGetServerSidePropsType } from "next";
-import init from "../../firebase/initFirebase";
-import firebase from "firebase/app";
-import { User, Room, Message } from "../../firebase/types";
 import { useRouter } from "next/router";
+
+import firebase from "firebase/app";
 import { useAuthState } from "react-firebase-hooks/auth";
+
+import init from "../../firebase/initFirebase";
 import Auth from "../../components/authComponent";
 import addUserToUsers from "../../firebase/addUser";
 import addRoomUser from "../../firebase/addRoomUser";
@@ -15,6 +15,9 @@ import removeUser from "../../firebase/RemoveUser";
 import { addMessage } from "../../firebase/addMessage";
 import getRoom from "../../firebase/getRoom";
 import getUser from "../../firebase/getUser";
+
+import type { GetServerSideProps, InferGetServerSidePropsType } from "next";
+import type { User, Room, Message } from "../../firebase/types";
 
 const Canvas = dynamic(() => import("../../components/multiplayerComponent"), {
   ssr: false,
@@ -275,7 +278,7 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
             userIndex={userIndex}
             n={room.n}
             m={room.m}
-            class="w-3/6 "
+            className="w-3/6 "
             id="canvas"
           />
           <>

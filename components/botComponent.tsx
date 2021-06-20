@@ -1,24 +1,26 @@
-import React, { ReactNode, useEffect, useState , useRef, Ref, MutableRefObject } from 'react'
-import { Game } from '../Game'
-import { Bot } from "../bot"
+import React, { useEffect, useRef } from "react";
+
+import { Bot } from "../lib/bot";
 
 interface Props {
-  // Props
-  id?: string
-  class?: string
+  id?: string;
+  class?: string;
 }
 
 const Component: React.FC<Props> = (props) => {
-  let canvasRef : HTMLCanvasElement | null = null;
-  const canvasRef2 = useRef(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
   useEffect(() => {
     // Run after mount
-    const bot = new Bot(canvasRef2.current)
+    const bot = new Bot(canvasRef.current);
     return () => {
       window.removeEventListener(`resize`, bot.resizeFunc);
-    }
+    };
   }, []);
-  return <canvas ref={canvasRef2} id={props.id} className={props.class}></canvas>
-}
+
+  return (
+    <canvas ref={canvasRef} id={props.id} className={props.class}></canvas>
+  );
+};
 
 export default Component;

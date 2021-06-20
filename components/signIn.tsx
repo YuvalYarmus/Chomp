@@ -1,20 +1,17 @@
 // Import FirebaseAuth and firebase.
-import React, { useEffect, useState } from 'react';
-import StyledFirebaseAuth from 'react-firebaseui/StyledFirebaseAuth';
-import firebase from 'firebase';
-import init from "../firebase/initFirebase"
-
-
-init()
+import React, { useEffect, useState } from "react";
+import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
+import firebase from "firebase";
+import init from "../firebase/initFirebase";
 
 // Configure FirebaseUI.
 const uiConfig = {
   // Popup signin flow rather than redirect flow.
-  signInFlow: 'popup',
+  signInFlow: "popup",
   // We will display Google and Facebook as auth providers.
   signInOptions: [
     firebase.auth.GoogleAuthProvider.PROVIDER_ID,
-    firebase.auth.FacebookAuthProvider.PROVIDER_ID
+    firebase.auth.FacebookAuthProvider.PROVIDER_ID,
   ],
   callbacks: {
     // Avoid redirects after sign-in.
@@ -23,13 +20,17 @@ const uiConfig = {
 };
 
 function SignInScreen() {
+  init();
+
   const [isSignedIn, setIsSignedIn] = useState(false); // Local signed-in state.
 
   // Listen to the Firebase Auth state and set the local state.
   useEffect(() => {
-    const unregisterAuthObserver = firebase.auth().onAuthStateChanged(user => {
-      setIsSignedIn(!!user);
-    });
+    const unregisterAuthObserver = firebase
+      .auth()
+      .onAuthStateChanged((user) => {
+        setIsSignedIn(!!user);
+      });
     return () => unregisterAuthObserver(); // Make sure we un-register Firebase observers when the component unmounts.
   }, []);
 
@@ -38,14 +39,21 @@ function SignInScreen() {
       <div>
         <h1>My App</h1>
         <p>Please sign-in:</p>
-        <StyledFirebaseAuth uiCallback={ui => ui.disableAutoSignIn()} uiConfig={uiConfig} firebaseAuth={firebase.auth()} />
+        <StyledFirebaseAuth
+          uiCallback={(ui) => ui.disableAutoSignIn()}
+          uiConfig={uiConfig}
+          firebaseAuth={firebase.auth()}
+        />
       </div>
     );
   }
   return (
     <div>
       <h1>My App</h1>
-      <p>Welcome {firebase.auth().currentUser!.displayName}! You are now signed-in!</p>
+      <p>
+        Welcome {firebase.auth().currentUser!.displayName}! You are now
+        signed-in!
+      </p>
       <a onClick={() => firebase.auth().signOut()}>Sign-out</a>
     </div>
   );

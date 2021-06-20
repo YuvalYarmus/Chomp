@@ -3,7 +3,6 @@ import React, { useRef } from "react";
 import { Canvas, useThree, useFrame } from "@react-three/fiber";
 import { useEffect } from "react";
 
-
 const CubeScene: React.FC = () => {
   const set = useThree((state) => state.set);
   const size = useThree((state) => state.size);

@@ -1,16 +1,17 @@
+import firebase from "firebase/app";
 import Head from "next/head";
-import init from "../firebase/initFirebase";
-import { Room, User } from "../firebase/types";
-import addUser from "../firebase/addUser";
-import addRoomUser from "../firebase/addRoomUser";
-import addRoom from "../firebase/addRoom";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
-import Auth from "../components/authComponent";
-import firebase from "firebase";
-import CubeComponent from "../components/cube";
 import { v4 as uuidV4 } from "uuid";
+
+import Auth from "../components/authComponent";
+import CubeComponent from "../components/cube";
+import addRoom from "../firebase/addRoom";
+import addRoomUser from "../firebase/addRoomUser";
+import addUser from "../firebase/addUser";
+import init from "../firebase/initFirebase";
+import { Room, User } from "../firebase/types";
 
 function Load() {
   init();

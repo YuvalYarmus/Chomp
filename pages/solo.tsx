@@ -18,7 +18,7 @@ export default function Solo() {
 		</Head>
 		<h1 className="text-gray-400">Welcome to the NextChomp One Device Page!</h1>
 		<div className="w-screen h-screen" id="flexWrap">
-			<Canvas class="w-4/5 h-4/5" id="canvas" />
+			<Canvas className="w-4/5 h-4/5" id="canvas" />
 		</div>
 	</>
 }

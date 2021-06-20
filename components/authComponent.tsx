@@ -1,9 +1,6 @@
 import React from "react";
 import StyledFirebaseAuth from "react-firebaseui/StyledFirebaseAuth";
-import init from "../firebase/initFirebase";
-// import firebase from "firebase/app";
-import firebase from "firebase"
-import { NextRouter } from "next/router";
+import firebase from "firebase/app";
 
 type Props = {
     path: string
@@ -15,17 +12,9 @@ export default function Auth({path} : Props) {
         signInSuccess: path,
         signInSuccessURL: path,
         signInOptions: [
-            // List of OAuth providers supported.
-            // {
-            //     provider: firebase.auth.EmailAuthProvider.PROVIDER_ID,
-            //     signInMethod: firebase.auth.EmailAuthProvider.EMAIL_LINK_SIGN_IN_METHOD,
-            //     requireDisplayName: true
-    
-            // },
             firebase.auth.GoogleAuthProvider.PROVIDER_ID,
             firebase.auth.GithubAuthProvider.PROVIDER_ID,
         ],
-        // Other config options...
     }
     console.log(`returning in auth, path is: ${path}`)
     return (

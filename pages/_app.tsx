@@ -1,10 +1,9 @@
 import Head from "next/head";
 import type { AppProps } from "next/app";
-import "../styles/globals.css";
-import "tailwindcss/tailwind.css";
-import homeCss from "../styles/Home.module.css"
-import Image from 'next/image'
 
+import "tailwindcss/tailwind.css";
+
+import "../styles/globals.css";
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (

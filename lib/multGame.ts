@@ -1,13 +1,11 @@
-import { Game, Circle } from "./Game";
-
-import init from "./firebase/initFirebase";
-import addRoomMove from "./firebase/addRoomMove";
-
 import firebase from "firebase/app";
-import firestore from "firebase/firestore";
-import { getRoomMoves} from "./firebase/getRoomMoves";
-import { Move } from "./firebase/types"
 
+import { Game } from "./Game";
+
+import init from "../firebase/initFirebase";
+import addRoomMove from "../firebase/addRoomMove";
+
+import type { Move } from "../firebase/types";
 
 /*
 I reached the conclusion that the real time listening to the db should be in this multGame class
@@ -108,12 +106,12 @@ export default class MultGame extends Game {
       .collection(`moves`)
       .orderBy("time", "desc")
       .onSnapshot((snapshot) => {
-        let changes = snapshot.docChanges();
+        const changes = snapshot.docChanges();
         console.log(`got changes in the moves collection:`);
         changes.forEach((change) => {
           console.log(change.doc.data());
           if (change.type === "added") {
-            let move = change.doc.data() as Move;
+            const move = change.doc.data() as Move;
             if (
               move.by != "Initial from server" &&
               parseInt(move.by.split(" ")[1]) - 1 != this.userIndex
