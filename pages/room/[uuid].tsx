@@ -261,7 +261,7 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
     return (
       <>
         <Head>
-          <title>SoloChomp</title>
+          <title>OnlineChomp</title>
           <link rel="stylesheet" href="/css/chat.css" />
         </Head>
 
@@ -356,6 +356,8 @@ export default function uuid({ bool, room, user, userIndex, errors }: Props) {
                               ? (msg.time.toDate() as Date).toLocaleTimeString()
                               : msg.time}
                           </span>
+						  <br />
+						  <span>{msg.sender}</span>
                         </p>
                         <p className="text text-gray-100">{msg.message}</p>
                       </div>
